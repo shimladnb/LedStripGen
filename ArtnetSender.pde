@@ -7,7 +7,7 @@ PImage myImage;
 
 void setup()
 {
-  size(512, 1);
+  size(512 / 3 , 1);
 
 
   myImage = loadImage("hq720.jpg"); // load an image
@@ -35,9 +35,9 @@ void draw()
   loadPixels(); //load pixels from screen into array
   for (int i =0; i < totalPixels; i++)
   {
-    dmxData[i] =   (byte) red(pixels[i]);
-    dmxData[i+1] = (byte) green(pixels[i]);
-    dmxData[i+2] = (byte) blue(pixels[i]);
+    dmxData[i * 3] =   (byte) red(pixels[i]);
+    dmxData[i * 3 + 1] = (byte) green(pixels[i]);
+    dmxData[i * 3 + 2] = (byte) blue(pixels[i]);
   }
 
 
