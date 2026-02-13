@@ -8,10 +8,12 @@ PImage myImage;
 
 void setup()
 {
-  size(800 , 200);
+  size(100, 100);
+  colorMode(RGB, 255);
 
-
-  myImage = loadImage("ColorGrid.png"); // load an image
+  myImage = loadImage("ColorGrid.png");
+  //myImage = loadImage("ColorGrid2.png");
+  //myImage = loadImage("Gradient.png");
 
 
   //colorMode(RGB, 255);
@@ -27,19 +29,21 @@ void draw()
 {
   // create hueshift color
   //int c = color(frameCount % 360, 80, 100);
-  
+
   background(0);
   image(myImage, 0, 0, width, height); //display the loaded image
-  int totalPixels = width * height;
+
 
   loadPixels(); //load pixels from screen into array
   for (int i =0; i < (512 / 3); i++)
   {
-    dmxData[i * 3] =   (byte) red(pixels[(totalPixels / 512) * i]);
-    dmxData[i * 3 + 1] = (byte) green(pixels[(totalPixels / 512) * i]);
-    dmxData[i * 3 + 2] = (byte) blue(pixels[(totalPixels / 512) * i]);
-    
-    println((totalPixels / 512) * i);
+    int totalPixels = width * height;
+    int pos = i * (19*3);
+    color currentPixel = pixels[constrain(pos, 0, totalPixels)];
+
+    dmxData[i * 3]     = (byte) red    (currentPixel);
+    dmxData[i * 3 + 1] = (byte) green  (currentPixel);
+    dmxData[i * 3 + 2] = (byte) blue   (currentPixel);
   }
 
 
