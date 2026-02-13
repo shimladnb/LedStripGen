@@ -8,11 +8,11 @@ PImage myImage;
 
 void setup()
 {
-  size(100, 100);
+  size(512, 512);
   colorMode(RGB, 255);
 
-  myImage = loadImage("ColorGrid.png");
-  //myImage = loadImage("ColorGrid2.png");
+  //myImage = loadImage("ColorGrid.png");
+  myImage = loadImage("ColorGrid2.png");
   //myImage = loadImage("Gradient.png");
 
 
@@ -37,9 +37,10 @@ void draw()
   loadPixels(); //load pixels from screen into array
   for (int i =0; i < (512 / 3); i++)
   {
+    int scale = 6;
     int totalPixels = width * height;
-    int pos = i * (19*3);
-    color currentPixel = pixels[constrain(pos, 0, totalPixels)];
+    int pos = i * (totalPixels / 512 * 3) * scale;
+    color currentPixel = pixels[pos % totalPixels];
 
     dmxData[i * 3]     = (byte) red    (currentPixel);
     dmxData[i * 3 + 1] = (byte) green  (currentPixel);
