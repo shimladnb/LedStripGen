@@ -22,11 +22,11 @@ String IP = "127.0.0.1";
 // String IP = "0.0.0.0";
 
 // user params
-int linesAmount = 0;
+int linesAmount = 2;
 int fps = 30;
 float scale = 1;
 int amountOfStrips = 8;
-int stripLength = 64/3;
+int stripLength = 21;
 
 PImage myImage;
 PImage spoutImage; // Image to receive a texture
@@ -62,7 +62,7 @@ void draw()
   background(0);
 
   // display the loaded image (optional, can be commented out if not needed)
-  image(myImage, 0, 0, width, height); 
+  // image(myImage, 0, 0, width, height); 
 
   // display and update horizontal lines
   colorMode(HSB, 360, 100, 100);
@@ -72,7 +72,7 @@ void draw()
   }
 
   // blur the image for a more dynamic effect (optional)
-  filter(BLUR, 1);
+  filter(BLUR, 2);
 
   // scrape pixel data and convert to dmx values
   scraper();
@@ -85,7 +85,7 @@ void draw()
 class HLine 
 { 
   float ypos, speed;
-  float size = random(20, 20); 
+  float size = random(80, 80); 
   HLine (float y, float s) {  
     ypos = y; 
     speed = s; 
@@ -140,13 +140,9 @@ void scraper()
   {
     for (int pixel = 0; pixel < stripLength ; pixel++) 
     {
-      int scaleX, scaleY;
-      scaleX = 1;
-      scaleY = 1;
-      
       int x = (strip * (width / amountOfStrips) );
       int y = (pixel * (height / stripLength) );
-      int pos = ((y * scaleY) * (width * scaleX) + x) % (width * height);
+      int pos = (y * width + x) % (width * height);
       color currentPixel = pixels[constrain(pos, 0, pixels.length - 1)];
 
       int dmxIndex = (strip * stripLength + pixel) * 3;
