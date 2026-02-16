@@ -26,7 +26,7 @@ int linesAmount = 0;
 int fps = 30;
 float scale = 1;
 int amountOfStrips = 8;
-int stripLength = 64;
+int stripLength = 64/3;
 
 PImage myImage;
 PImage spoutImage; // Image to receive a texture
@@ -36,7 +36,7 @@ PGraphics pgr; // Canvas to receive a texture
 
 void setup()
 {
-  size(8*10, 64*10);
+  size(80, 640);
   frameRate(fps);
 
   //myImage = loadImage("ColorGrid.png");
@@ -85,7 +85,7 @@ void draw()
 class HLine 
 { 
   float ypos, speed;
-  float size = random(1, 20); 
+  float size = random(20, 20); 
   HLine (float y, float s) {  
     ypos = y; 
     speed = s; 
@@ -142,11 +142,11 @@ void scraper()
     {
       int scaleX, scaleY;
       scaleX = 1;
-      scaleY = 3;
+      scaleY = 1;
       
-      int x = (strip * (width / amountOfStrips) + (width / amountOfStrips) / 2);
-      int y = (pixel * (height / stripLength) + (height / stripLength) / 2);
-      int pos = ((y * scaleY) * width + (x * scaleX)) % (width * height);
+      int x = (strip * (width / amountOfStrips) );
+      int y = (pixel * (height / stripLength) );
+      int pos = ((y * scaleY) * (width * scaleX) + x) % (width * height);
       color currentPixel = pixels[constrain(pos, 0, pixels.length - 1)];
 
       int dmxIndex = (strip * stripLength + pixel) * 3;
