@@ -22,7 +22,7 @@ String IP = "127.0.0.1";
 // String IP = "0.0.0.0";
 
 // user params
-int linesAmount = 1;
+int linesAmount = 0;
 int fps = 30;
 float scale = 1;
 int amountOfStrips = 8;
@@ -136,14 +136,18 @@ void scraper()
   // }
 
 // scrape pixel data based on the number of strips and strip length
-  for (int strip = 0; strip < amountOfStrips; strip++) 
+  for (int strip = 0; strip < amountOfStrips ; strip++) 
   {
-    for (int pixel = 0; pixel < stripLength; pixel++) 
+    for (int pixel = 0; pixel < stripLength ; pixel++) 
     {
-      int x = strip * (width / amountOfStrips) + (width / amountOfStrips) / 2;
-      int y = pixel * (height / stripLength) + (height / stripLength) / 2;
-      int pos = y * width + x;
-      color currentPixel = pixels[pos % pixels.length];
+      int scaleX, scaleY;
+      scaleX = 1;
+      scaleY = 3;
+      
+      int x = (strip * (width / amountOfStrips) + (width / amountOfStrips) / 2);
+      int y = (pixel * (height / stripLength) + (height / stripLength) / 2);
+      int pos = ((y * scaleY) * width + (x * scaleX)) % (width * height);
+      color currentPixel = pixels[constrain(pos, 0, pixels.length - 1)];
 
       int dmxIndex = (strip * stripLength + pixel) * 3;
       if (dmxIndex < dmxData.length - 2) 
