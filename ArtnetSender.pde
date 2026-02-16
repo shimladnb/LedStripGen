@@ -5,6 +5,7 @@ byte[] dmxData = new byte[512];
 
 //String IP = "192.168.1.245";
 String IP = "127.0.0.1";
+// String IP = "0.0.0.0";
 
 
 PImage myImage;
