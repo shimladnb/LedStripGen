@@ -4,7 +4,7 @@ ArtNetClient artnet;
 byte[] dmxData = new byte[512];
 ArrayList<HLine> hLines = new ArrayList<HLine>();
 
-//String IP = "192.168.1.245";
+// String IP = "192.168.1.245";
 String IP = "127.0.0.1";
 // String IP = "0.0.0.0";
 
@@ -16,14 +16,12 @@ PImage myImage;
 void setup()
 {
   size(512, 512);
-  colorMode(RGB, 255);
 
   //myImage = loadImage("ColorGrid.png");
   myImage = loadImage("ColorGrid2.png");
   //myImage = loadImage("Gradient.png");
 
   createLines();
-
 
   //colorMode(RGB, 255);
   textAlign(CENTER, CENTER);
@@ -36,21 +34,22 @@ void setup()
 
 void draw()
 {
-  // create hueshift color
   
-
   background(0);
   // image(myImage, 0, 0, width, height); //display the loaded image
 
+  // update and display lines
+  colorMode(HSB, 360, 100, 100);
   for (HLine line : hLines) {
     line.update();
   }
+  colorMode(RGB,255);
 
-
-  loadPixels(); //load pixels from screen into array
+  //scrape pixel data and convert to dmx values
+  loadPixels(); 
   for (int i =0; i < (512 / 3); i++)
   {
-    int scale = 6;
+    int scale = 1;
     int totalPixels = width * height;
     int pos = i * (totalPixels / 512 * 3) * scale;
     color currentPixel = pixels[pos % totalPixels];
@@ -60,17 +59,15 @@ void draw()
     dmxData[i * 3 + 2] = (byte) blue   (currentPixel);
   }
 
-
   // send dmx to localhost
   artnet.unicastDmx(IP, 0, 0, dmxData);
-
-  // show values
-  //text("R: " + (int)red(c) + " Green: " + (int)green(c) + " Blue: " + (int)blue(c), width / 2, height / 2);
 }
 
+// Class representing a horizontal line that moves down the screen
 class HLine 
 { 
-  float ypos, speed; 
+  float ypos, speed;
+  float size = random(10, 20); 
   HLine (float y, float s) {  
     ypos = y; 
     speed = s; 
@@ -80,18 +77,20 @@ class HLine
     if (ypos > width) { 
       ypos = 0; 
     } 
-    int c = color(colorLfo(0.1 * speed, 255), colorLfo(0.2 * speed, 255), colorLfo(0.3 * speed, 255));
+    int c = color(colorLfo(0.1 * speed, 360), 100, 100);
     line(0, ypos, width, ypos); 
     stroke(c);
-    strokeWeight(20);
+    strokeWeight(size);
   } 
 } 
 
+// Function to create a color LFO (Low Frequency Oscillator) for dynamic color changes
 int colorLfo(float frequency, float amplitude) 
 {
   return (int)(amplitude * (1 + sin(TWO_PI * frequency * frameCount / 60)) / 2);
 }
 
+//
 void createLines() {
   for (int i = 0; i < linesAmount; i++) 
   {
