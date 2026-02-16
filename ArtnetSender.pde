@@ -8,7 +8,7 @@ import ch.bildspur.artnet.*;
   Make sure to include the ArtNet library in your Processing environment to run this code.
 
   todo:
-  - 
+  - 16 x 32 strips scraper
 */
 
 
@@ -25,6 +25,8 @@ String IP = "127.0.0.1";
 int linesAmount = 1;
 int fps = 30;
 float scale = 1;
+int amountOfStrips = 8;
+int stripLength = 64;
 
 PImage myImage;
 PImage spoutImage; // Image to receive a texture
@@ -34,13 +36,14 @@ PGraphics pgr; // Canvas to receive a texture
 
 void setup()
 {
-  size(512, 512);
+  size(8*10, 64*10);
   frameRate(fps);
 
   //myImage = loadImage("ColorGrid.png");
   // myImage = loadImage("ColorGrid2.png");
   //myImage = loadImage("Gradient.png");
-  myImage = loadImage("RainbowDiagonal.png");
+  // myImage = loadImage("RainbowDiagonal.png");
+  myImage = loadImage("80x640ColorGrid.png");
 
   createLines(linesAmount);
 
@@ -63,26 +66,16 @@ void draw()
 
   // display and update horizontal lines
   colorMode(HSB, 360, 100, 100);
-  for (HLine line : hLines) {
+  for (HLine line : hLines) 
+  {
     line.update();
   }
 
   // blur the image for a more dynamic effect (optional)
-  filter(BLUR, 2);
+  filter(BLUR, 1);
 
-  //scrape pixel data and convert to dmx values
-  colorMode(RGB,255);
-  loadPixels(); 
-  for (int i =0; i < (512 / 3); i++)
-  {
-    int totalPixels = width * height;
-    int pos = (int)(i * (int) (totalPixels / 512 * 3) * scale);
-    color currentPixel = pixels[pos % totalPixels];
-
-    dmxData[i * 3]     = (byte) red    (currentPixel);
-    dmxData[i * 3 + 1] = (byte) green  (currentPixel);
-    dmxData[i * 3 + 2] = (byte) blue   (currentPixel);
-  }
+  // scrape pixel data and convert to dmx values
+  scraper();
 
   // send dmx to localhost
   artnet.unicastDmx(IP, 0, 0, dmxData);
@@ -97,9 +90,10 @@ class HLine
     ypos = y; 
     speed = s; 
   } 
+
   void update() { 
     ypos += speed; 
-    if (ypos > width) { 
+    if (ypos > height) { 
       ypos = 0; 
     } 
     int c = color(colorLfo(0.1 * speed, 360), 100, 100);
@@ -125,4 +119,43 @@ void createLines( int amount) {
   }
 }
 
+//scrape pixel data and convert to dmx values
+void scraper()
+{
+  colorMode(RGB,255);
+  loadPixels(); 
+  // for (int i =0; i < (512 / 3); i++)
+  // {
+  //   int totalPixels = width * height;
+  //   int pos = (int)(i * (totalPixels / 512 * 3) * scale);
+  //   color currentPixel = pixels[pos % totalPixels];
 
+  //   dmxData[i * 3]     = (byte) red    (currentPixel);
+  //   dmxData[i * 3 + 1] = (byte) green  (currentPixel);
+  //   dmxData[i * 3 + 2] = (byte) blue   (currentPixel);
+  // }
+
+// scrape pixel data based on the number of strips and strip length
+  for (int strip = 0; strip < amountOfStrips; strip++) 
+  {
+    for (int pixel = 0; pixel < stripLength; pixel++) 
+    {
+      int x = strip * (width / amountOfStrips) + (width / amountOfStrips) / 2;
+      int y = pixel * (height / stripLength) + (height / stripLength) / 2;
+      int pos = y * width + x;
+      color currentPixel = pixels[pos % pixels.length];
+
+      int dmxIndex = (strip * stripLength + pixel) * 3;
+      if (dmxIndex < dmxData.length - 2) 
+      {
+        dmxData[dmxIndex]     = (byte) red    (currentPixel);
+        dmxData[dmxIndex + 1] = (byte) green  (currentPixel);
+        dmxData[dmxIndex + 2] = (byte) blue   (currentPixel);
+      }
+    }
+  }
+
+
+
+       
+}

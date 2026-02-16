@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 1954.0, 77.0, 1613.0, 969.0 ],
+		"rect" : [ 2106.0, 191.0, 1613.0, 969.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -94,7 +94,7 @@
 					"numoutlets" : 2,
 					"outlettype" : [ "", "bang" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 90.0, 753.0, 50.0, 22.0 ]
+					"patching_rect" : [ 101.0, 705.0, 50.0, 22.0 ]
 				}
 
 			}
@@ -105,7 +105,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
-					"patching_rect" : [ 90.0, 720.0, 37.0, 22.0 ],
+					"patching_rect" : [ 101.0, 672.0, 37.0, 22.0 ],
 					"text" : "zl.len"
 				}
 
@@ -165,7 +165,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "" ],
-					"patching_rect" : [ 147.0, 600.0, 40.0, 22.0 ],
+					"patching_rect" : [ 101.0, 612.0, 40.0, 22.0 ],
 					"text" : "t l l l"
 				}
 
@@ -218,7 +218,7 @@
 					"numinlets" : 0,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 147.0, 570.0, 95.0, 22.0 ],
+					"patching_rect" : [ 101.0, 582.0, 95.0, 22.0 ],
 					"text" : "r ArtnetUniverse"
 				}
 
