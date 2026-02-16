@@ -3,6 +3,9 @@ import ch.bildspur.artnet.*;
 ArtNetClient artnet;
 byte[] dmxData = new byte[512];
 
+//String IP = "192.168.1.245";
+String IP = "127.0.0.1";
+
 
 PImage myImage;
 
@@ -49,7 +52,7 @@ void draw()
 
 
   // send dmx to localhost
-  artnet.unicastDmx("127.0.0.1", 0, 0, dmxData);
+  artnet.unicastDmx(IP, 0, 0, dmxData);
 
   // show values
   //text("R: " + (int)red(c) + " Green: " + (int)green(c) + " Blue: " + (int)blue(c), width / 2, height / 2);
