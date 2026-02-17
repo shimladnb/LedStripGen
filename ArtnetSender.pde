@@ -22,11 +22,13 @@ String IP = "127.0.0.1";
 // String IP = "0.0.0.0";
 
 // user params
-int linesAmount = 2;
+int linesAmount = 8;
+boolean displayImage = false;
 int fps = 30;
 float scale = 1;
 int amountOfStrips = 8;
 int stripLength = 21;
+
 
 PImage myImage;
 PImage spoutImage; // Image to receive a texture
@@ -36,7 +38,7 @@ PGraphics pgr; // Canvas to receive a texture
 
 void setup()
 {
-  size(80, 640);
+  size(8*20, 16*20);
   frameRate(fps);
 
   //myImage = loadImage("ColorGrid.png");
@@ -62,10 +64,13 @@ void draw()
   background(0);
 
   // display the loaded image (optional, can be commented out if not needed)
-  // image(myImage, 0, 0, width, height); 
+  if (displayImage) 
+  {
+    image(myImage, 0, 0, width, height);
+  }
+  
 
   // display and update horizontal lines
-  colorMode(HSB, 360, 100, 100);
   for (HLine line : hLines) 
   {
     line.update();
@@ -85,21 +90,26 @@ void draw()
 class HLine 
 { 
   float ypos, speed;
-  float size = random(80, 80); 
-  HLine (float y, float s) {  
+  float size = height / 10.0; 
+  int position = 0;
+  HLine (float y, float s, int pos) 
+  {  
     ypos = y; 
     speed = s; 
+    position = pos;
   } 
 
   void update() { 
+    colorMode(HSB, 360, 100, 100);
     ypos += speed; 
     if (ypos > height) { 
       ypos = 0; 
     } 
     int c = color(colorLfo(0.1 * speed, 360), 100, 100);
-    line(0, ypos, width, ypos); 
+    line(position, ypos, position + width / 8, ypos); 
     stroke(c);
     strokeWeight(size);
+    strokeCap(SQUARE);
   } 
 } 
 
@@ -115,7 +125,7 @@ void createLines( int amount) {
   {
     float ypos = random(height);
     float speed = random(0.5, 2);
-    hLines.add(new HLine(ypos, speed));
+    hLines.add(new HLine(ypos, speed, i * (width / amountOfStrips)));
   }
 }
 
@@ -124,23 +134,13 @@ void scraper()
 {
   colorMode(RGB,255);
   loadPixels(); 
-  // for (int i =0; i < (512 / 3); i++)
-  // {
-  //   int totalPixels = width * height;
-  //   int pos = (int)(i * (totalPixels / 512 * 3) * scale);
-  //   color currentPixel = pixels[pos % totalPixels];
-
-  //   dmxData[i * 3]     = (byte) red    (currentPixel);
-  //   dmxData[i * 3 + 1] = (byte) green  (currentPixel);
-  //   dmxData[i * 3 + 2] = (byte) blue   (currentPixel);
-  // }
 
 // scrape pixel data based on the number of strips and strip length
   for (int strip = 0; strip < amountOfStrips ; strip++) 
   {
     for (int pixel = 0; pixel < stripLength ; pixel++) 
     {
-      int x = (strip * (width / amountOfStrips) );
+      int x = (strip * (width / amountOfStrips) + (width / (2 * amountOfStrips)));
       int y = (pixel * (height / stripLength) );
       int pos = (y * width + x) % (width * height);
       color currentPixel = pixels[constrain(pos, 0, pixels.length - 1)];
@@ -153,9 +153,5 @@ void scraper()
         dmxData[dmxIndex + 2] = (byte) blue   (currentPixel);
       }
     }
-  }
-
-
-
-       
+  }  
 }
