@@ -25,7 +25,7 @@ String IP = "192.168.1.245";
 // String IP = "127.0.0.1";
 
 // user params
-int linesAmount = 4;
+int linesAmount = 7;
 boolean displayImage = false;
 boolean blurImage = true;
 int fps = 30;
@@ -71,11 +71,13 @@ class HLine
   float ypos, speed;
   float size = height / 10.0; 
   int xpos;
-  HLine (float y, float s, int x) 
+  int index;
+  HLine (float y, float s, int x, int i) 
   {  
     ypos = y; 
     speed = s; 
     xpos = x;
+    index = i;
   } 
 
   void update() { 
@@ -85,7 +87,7 @@ class HLine
     { 
       ypos = 0; 
     } 
-    int c = color(colorLfo(0.1 * speed, 360), 100, 100);
+    int c = color(colorLfo(0.1 * speed, 360) + (index * 20), 100, 100);
     line(xpos, ypos, width, ypos); 
     stroke(c);
     strokeWeight(size);
@@ -100,7 +102,7 @@ void createLines( int amount) {
     float ypos = i * height / amount;
     float speed = 1;
     float xpos = 0;
-    hLines.add(new HLine(ypos, speed, (int)xpos));
+    hLines.add(new HLine(ypos, speed, (int)xpos, i));
     
   }
 }
@@ -153,21 +155,21 @@ void draw()
     image(myImage, 0, 0, width, height);
   }
   
-  float translateX = (float) (dataInput[0] & 0xFF) -  127 ; 
-  float translateY = (float) (dataInput[1] & 0xFF)  - 127 ; 
+  float translateX = width / 2 - 30; 
+  float translateY = height / 2 * -1 + 30;
 
+  // translateX = (float) (dataInput[0] & 0xFF) -  127 ;
+  // translateY = (float) (dataInput[1] & 0xFF)  - 127 ;
 
-  println(translateY);
+  scale(1.75, 1.75);
   translate(translateX, translateY);
-  rotate(PI*1.75);
+  rotate(radians(45));
   
   // display and update horizontal lines
   for (HLine line : hLines) 
   {
     line.update();
   }
-
-  
 
   // blur the image for a more dynamic effect (optional)
   if (blurImage)
