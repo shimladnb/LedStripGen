@@ -15,18 +15,19 @@ PImage myImage;
 
   todo:
   - 16 x 32 strips scraper CHECK  
-  - add more visual effects (e.g. vertical lines, circles, etc.)
-  - ARTNET receiver to visualize incoming data
+  - add more visual effects
+  - Artnet receiver to visualize incoming data CHECK
   - image files for lines
+  - plan out Artnet control from the desk
 */
 
 String IP = "192.168.1.245";
 // String IP = "127.0.0.1";
 
 // user params
-int linesAmount = 1;
+int linesAmount = 4;
 boolean displayImage = false;
-boolean blurImage = false;
+boolean blurImage = true;
 int fps = 30;
 float scale = 1;
 int amountOfStrips = 8;
@@ -36,7 +37,7 @@ int stripLength = 21;
 
 void setup()
 {
-  size(16*20, 16*20);
+  size(16*20, 16*20, P2D);
   frameRate(fps);
 
   //myImage = loadImage("ColorGrid.png");
@@ -58,47 +59,49 @@ void setup()
 }
 
 
-
-// Class representing a horizontal line that moves down the screen
-class HLine 
-{ 
-  float ypos, speed;
-  float size = height / 10.0; 
-  int position = 0;
-  HLine (float y, float s, int pos) 
-  {  
-    ypos = y; 
-    speed = s; 
-    position = pos;
-  } 
-
-  void update() { 
-    colorMode(HSB, 360, 100, 100);
-    ypos += speed; 
-    if (ypos > height) { 
-      ypos = 0; 
-    } 
-    int c = color(colorLfo(0.1 * speed, 360), 100, 100);
-    line(position, ypos, position + width / 8, ypos); 
-    stroke(c);
-    strokeWeight(size);
-    strokeCap(SQUARE);
-  } 
-} 
-
 // Function to create a color LFO (Low Frequency Oscillator) for dynamic color changes
 int colorLfo(float frequency, float amplitude) 
 {
   return (int)(amplitude * (1 + sin(TWO_PI * frequency * frameCount / 60)) / 2);
 }
 
+// Class representing a horizontal line that moves down the screen
+class HLine 
+{ 
+  float ypos, speed;
+  float size = height / 10.0; 
+  int xpos;
+  HLine (float y, float s, int x) 
+  {  
+    ypos = y; 
+    speed = s; 
+    xpos = x;
+  } 
+
+  void update() { 
+    colorMode(HSB, 360, 100, 100);
+    ypos += speed; 
+    if (ypos > height) 
+    { 
+      ypos = 0; 
+    } 
+    int c = color(colorLfo(0.1 * speed, 360), 100, 100);
+    line(xpos, ypos, width, ypos); 
+    stroke(c);
+    strokeWeight(size);
+    strokeCap(SQUARE);
+  } 
+} 
+
 // Function to create horizontal lines with random positions and speeds
 void createLines( int amount) {
   for (int i = 0; i < amount; i++) 
   {
-    float ypos = random(height);
-    float speed = random(0.5, 2);
-    hLines.add(new HLine(ypos, speed, i * (width / amountOfStrips)));
+    float ypos = i * height / amount;
+    float speed = 1;
+    float xpos = 0;
+    hLines.add(new HLine(ypos, speed, (int)xpos));
+    
   }
 }
 
@@ -139,9 +142,10 @@ void draw()
 {
   background(0);
 
+  // read artnet data
   byte[] dataInput = artnet.readDmxData(0, 0);
-  int c = color(dataInput[0] & 0xFF, dataInput[1] & 0xFF, dataInput[2] & 0xFF);
-  background(c);
+  // int c = color(dataInput[0] & 0xFF, dataInput[1] & 0xFF, dataInput[2] & 0xFF);
+  // background(c);
 
   // display the loaded image
   if (displayImage) 
@@ -149,11 +153,21 @@ void draw()
     image(myImage, 0, 0, width, height);
   }
   
+  float translateX = (float) (dataInput[0] & 0xFF) -  127 ; 
+  float translateY = (float) (dataInput[1] & 0xFF)  - 127 ; 
+
+
+  println(translateY);
+  translate(translateX, translateY);
+  rotate(PI*1.75);
+  
   // display and update horizontal lines
   for (HLine line : hLines) 
   {
     line.update();
   }
+
+  
 
   // blur the image for a more dynamic effect (optional)
   if (blurImage)
@@ -166,7 +180,5 @@ void draw()
 
   // send dmx to localhost
   artnet.unicastDmx(IP, 0, 0, dmxData);
-
-
-  
+  // artnet.multicastDmx(0, 0, dmxData);
 }
