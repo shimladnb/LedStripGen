@@ -1,5 +1,11 @@
 import ch.bildspur.artnet.*;
 
+ArtNetClient artnet;
+byte[] dmxData = new byte[512];
+byte[] dmxDataInput = new byte[512];
+ArrayList<HLine> hLines = new ArrayList<HLine>();
+PImage myImage;
+
 /*
   ArtnetSender.pde
   A simple Processing sketch that sends DMX data over Art-Net based on pixel data from an image.
@@ -8,44 +14,37 @@ import ch.bildspur.artnet.*;
   Make sure to include the ArtNet library in your Processing environment to run this code.
 
   todo:
-  - 16 x 32 strips scraper
+  - 16 x 32 strips scraper CHECK  
+  - add more visual effects (e.g. vertical lines, circles, etc.)
+  - ARTNET receiver to visualize incoming data
+  - image files for lines
 */
 
-
-
-ArtNetClient artnet;
-byte[] dmxData = new byte[512];
-ArrayList<HLine> hLines = new ArrayList<HLine>();
-
-// String IP = "192.168.1.245";
-String IP = "127.0.0.1";
-// String IP = "0.0.0.0";
+String IP = "192.168.1.245";
+// String IP = "127.0.0.1";
 
 // user params
-int linesAmount = 8;
+int linesAmount = 1;
 boolean displayImage = false;
+boolean blurImage = false;
 int fps = 30;
 float scale = 1;
 int amountOfStrips = 8;
 int stripLength = 21;
 
 
-PImage myImage;
-PImage spoutImage; // Image to receive a texture
-PGraphics pgr; // Canvas to receive a texture
-
-
 
 void setup()
 {
-  size(8*20, 16*20);
+  size(16*20, 16*20);
   frameRate(fps);
 
   //myImage = loadImage("ColorGrid.png");
   // myImage = loadImage("ColorGrid2.png");
   //myImage = loadImage("Gradient.png");
   // myImage = loadImage("RainbowDiagonal.png");
-  myImage = loadImage("80x640ColorGrid.png");
+  // myImage = loadImage("80x640ColorGrid.png");
+  myImage = loadImage("Horse.png");
 
   createLines(linesAmount);
 
@@ -54,37 +53,11 @@ void setup()
   textSize(20);
 
   // create artnet client without buffer (no receving needed)
-  artnet = new ArtNetClient(null);
+  artnet = new ArtNetClient();
   artnet.start();
-  
 }
 
-void draw()
-{
-  background(0);
 
-  // display the loaded image (optional, can be commented out if not needed)
-  if (displayImage) 
-  {
-    image(myImage, 0, 0, width, height);
-  }
-  
-
-  // display and update horizontal lines
-  for (HLine line : hLines) 
-  {
-    line.update();
-  }
-
-  // blur the image for a more dynamic effect (optional)
-  filter(BLUR, 2);
-
-  // scrape pixel data and convert to dmx values
-  scraper();
-
-  // send dmx to localhost
-  artnet.unicastDmx(IP, 0, 0, dmxData);
-}
 
 // Class representing a horizontal line that moves down the screen
 class HLine 
@@ -154,4 +127,46 @@ void scraper()
       }
     }
   }  
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////// WE DRAW HERE ///////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+
+
+void draw()
+{
+  background(0);
+
+  byte[] dataInput = artnet.readDmxData(0, 0);
+  int c = color(dataInput[0] & 0xFF, dataInput[1] & 0xFF, dataInput[2] & 0xFF);
+  background(c);
+
+  // display the loaded image
+  if (displayImage) 
+  {
+    image(myImage, 0, 0, width, height);
+  }
+  
+  // display and update horizontal lines
+  for (HLine line : hLines) 
+  {
+    line.update();
+  }
+
+  // blur the image for a more dynamic effect (optional)
+  if (blurImage)
+  {
+    filter(BLUR, 2);
+  }
+  
+  // scrape pixel data and convert to dmx values{}}
+  scraper();
+
+  // send dmx to localhost
+  artnet.unicastDmx(IP, 0, 0, dmxData);
+
+
+  
 }
