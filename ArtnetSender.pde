@@ -21,8 +21,8 @@ PImage myImage;
   - plan out Artnet control from the desk
 */
 
-String IP = "192.168.1.245";
-// String IP = "127.0.0.1";
+// String IP = "192.168.1.245";
+String IP = "127.0.0.1";
 
 // user params
 int linesAmount = 7;
@@ -132,7 +132,12 @@ void scraper()
       }
     }
   }  
+  artnet.unicastDmx(IP, 0, 0, dmxData);
 }
+
+
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -155,32 +160,39 @@ void draw()
     image(myImage, 0, 0, width, height);
   }
   
-  float translateX = width / 2 - 30; 
-  float translateY = height / 2 * -1 + 30;
-
-  // translateX = (float) (dataInput[0] & 0xFF) -  127 ;
-  // translateY = (float) (dataInput[1] & 0xFF)  - 127 ;
-
-  scale(1.75, 1.75);
-  translate(translateX, translateY);
-  rotate(radians(45));
   
-  // display and update horizontal lines
+  
+
+
+  pushMatrix();
+  scale(2);
+  translate(width/4, height/4);
+  rotate(radians(frameCount % 360));
+  translate(-width/2, -height/2);
+    // display and update horizontal lines
   for (HLine line : hLines) 
   {
     line.update();
   }
+
+
+
+  popMatrix();
+
+
 
   // blur the image for a more dynamic effect (optional)
   if (blurImage)
   {
     filter(BLUR, 2);
   }
+
+
   
   // scrape pixel data and convert to dmx values{}}
   scraper();
 
   // send dmx to localhost
-  artnet.unicastDmx(IP, 0, 0, dmxData);
+  
   // artnet.multicastDmx(0, 0, dmxData);
 }
