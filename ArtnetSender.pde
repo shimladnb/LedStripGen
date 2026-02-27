@@ -22,7 +22,7 @@ PImage myImage;
 */
 
 // String IP = "192.168.1.245";
-String IP = "127.0.0.1";
+String IP = "10.254.254.254";
 
 // user params
 int linesAmount = 7;
@@ -80,14 +80,14 @@ class HLine
     index = i;
   } 
 
-  void update() { 
+  void update(float amplitude) { 
     colorMode(HSB, 360, 100, 100);
     ypos += speed; 
     if (ypos > height) 
     { 
       ypos = 0; 
     } 
-    int c = color(colorLfo(0.1 * speed, 360) + (index * 20), 100, 100);
+    int c = color(colorLfo(0.1 * speed, 360) + (index * 20), 50, 100 * amplitude);
     line(xpos, ypos, width, ypos); 
     stroke(c);
     strokeWeight(size);
@@ -123,19 +123,18 @@ void scraper()
       int pos = (y * width + x) % (width * height);
       color currentPixel = pixels[constrain(pos, 0, pixels.length - 1)];
 
-      int dmxIndex = (strip * stripLength + pixel) * 3;
-      if (dmxIndex < dmxData.length - 2) 
+      int dmxIndex = (strip * stripLength + pixel) * 4;
+      if (dmxIndex < dmxData.length - 3) 
       {
         dmxData[dmxIndex]     = (byte) red    (currentPixel);
         dmxData[dmxIndex + 1] = (byte) green  (currentPixel);
         dmxData[dmxIndex + 2] = (byte) blue   (currentPixel);
+        dmxData[dmxIndex + 3] = (byte) min(red(currentPixel), green(currentPixel), blue(currentPixel));
       }
     }
-  }  
+  }
   artnet.unicastDmx(IP, 0, 0, dmxData);
 }
-
-
 
 
 
@@ -160,9 +159,6 @@ void draw()
     image(myImage, 0, 0, width, height);
   }
   
-  
-  
-
 
   pushMatrix();
   scale(2);
@@ -172,7 +168,7 @@ void draw()
     // display and update horizontal lines
   for (HLine line : hLines) 
   {
-    line.update();
+    line.update(1.0);
   }
 
 
