@@ -62,6 +62,11 @@ void setup()
 }
 
 
+////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////// WE DEFINE THE ARTSY STUFF HERE /////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+
+
 // Function to create a color LFO (Low Frequency Oscillator) for dynamic color changes
 int colorLfo(float frequency, float amplitude)
 {
@@ -108,36 +113,6 @@ void createLines( int amount) {
     hLines.add(new HLine(ypos, speed, (int)xpos, i));
   }
 }
-
-//scrape pixel data and convert to dmx values
-void scraper()
-{
-  colorMode(RGB, 255);
-  loadPixels();
-
-  // scrape pixel data based on the number of strips and strip length
-  for (int strip = 0; strip < amountOfStrips; strip++)
-  {
-    for (int pixel = 0; pixel < stripLength; pixel++)
-    {
-      int x = (strip * (width / amountOfStrips) + (width / (2 * amountOfStrips)));
-      int y = (pixel * (height / stripLength) );
-      int pos = (y * width + x) % (width * height);
-      color currentPixel = pixels[constrain(pos, 0, pixels.length - 1)];
-
-      int dmxIndex = (strip * stripLength + pixel) * 4;
-      if (dmxIndex < dmxData.length - 3)
-      {
-        dmxData[dmxIndex]     = (byte) red    (currentPixel);
-        dmxData[dmxIndex + 1] = (byte) green  (currentPixel);
-        dmxData[dmxIndex + 2] = (byte) blue   (currentPixel);
-        dmxData[dmxIndex + 3] = (byte) min(red(currentPixel), green(currentPixel), blue(currentPixel));
-      }
-    }
-  }
-  artnet.unicastDmx(IP, 0, 0, dmxData);
-}
-
 
 
 
@@ -197,6 +172,11 @@ void draw()
   // artnet.multicastDmx(0, 0, dmxData);
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////// WE DO SOME NERDY STUFF HERE ///////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+
 // a function that reads an resolume xml file and extracts the color values for each fixture (not fully implemented)
 void readXml(String filePath)
 {
@@ -222,15 +202,48 @@ void readXml(String filePath)
           for (XML DmxSlice : DmxSlices)
           {
             XML[] InputRect = DmxSlice.getChildren("InputRect");
-              println("Number of InputRect: " + InputRect.length);
-              for (XML rect : InputRect)
-              {
-                XML[] V = rect.getChildren("v");
-                println("Number of V: " + V.length);
-              }
+            // println("Number of InputRect: " + InputRect.length);
+            for (XML rect : InputRect)
+            {
+              XML[] v = rect.getChildren("v");
+              v[0].getContent(); // x
+              v[1].getContent(); // y 
+              v[2].getContent(); // width
+              v[3].getContent(); // height
+            }
           }
         }
       }
     }
   }
+}
+
+
+//scrape pixel data and convert to dmx values
+void scraper()
+{
+  colorMode(RGB, 255);
+  loadPixels();
+
+  // scrape pixel data based on the number of strips and strip length
+  for (int strip = 0; strip < amountOfStrips; strip++)
+  {
+    for (int pixel = 0; pixel < stripLength; pixel++)
+    {
+      int x = (strip * (width / amountOfStrips) + (width / (2 * amountOfStrips)));
+      int y = (pixel * (height / stripLength) );
+      int pos = (y * width + x) % (width * height);
+      color currentPixel = pixels[constrain(pos, 0, pixels.length - 1)];
+
+      int dmxIndex = (strip * stripLength + pixel) * 4;
+      if (dmxIndex < dmxData.length - 3)
+      {
+        dmxData[dmxIndex]     = (byte) red    (currentPixel);
+        dmxData[dmxIndex + 1] = (byte) green  (currentPixel);
+        dmxData[dmxIndex + 2] = (byte) blue   (currentPixel);
+        dmxData[dmxIndex + 3] = (byte) min(red(currentPixel), green(currentPixel), blue(currentPixel));
+      }
+    }
+  }
+  artnet.unicastDmx(IP, 0, 0, dmxData);
 }
