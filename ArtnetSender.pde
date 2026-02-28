@@ -5,21 +5,22 @@ byte[] dmxData = new byte[512];
 byte[] dmxDataInput = new byte[512];
 ArrayList<HLine> hLines = new ArrayList<HLine>();
 PImage myImage;
+XML xml;
 
 /*
   ArtnetSender.pde
-  A simple Processing sketch that sends DMX data over Art-Net based on pixel data from an image.
-  It also includes moving horizontal lines for visual effect.
-
-  Make sure to include the ArtNet library in your Processing environment to run this code.
-
-  todo:
-  - 16 x 32 strips scraper CHECK  
-  - add more visual effects
-  - Artnet receiver to visualize incoming data CHECK
-  - image files for lines
-  - plan out Artnet control from the desk
-*/
+ A simple Processing sketch that sends DMX data over Art-Net based on pixel data from an image.
+ It also includes moving horizontal lines for visual effect.
+ 
+ Make sure to include the ArtNet library in your Processing environment to run this code.
+ 
+ todo:
+ - 16 x 32 strips scraper CHECK
+ - add more visual effects
+ - Artnet receiver to visualize incoming data CHECK
+ - image files for lines
+ - plan out Artnet control from the desk
+ */
 
 // String IP = "192.168.1.245";
 String IP = "10.254.254.254";
@@ -37,7 +38,7 @@ int stripLength = 21;
 
 void setup()
 {
-  size(16*20, 16*20, P2D);
+  size(560, 70, P2D);
   frameRate(fps);
 
   //myImage = loadImage("ColorGrid.png");
@@ -56,67 +57,68 @@ void setup()
   // create artnet client without buffer (no receving needed)
   artnet = new ArtNetClient();
   artnet.start();
+
+  readXml("ArtnetSenderADM.xml");
 }
 
 
 // Function to create a color LFO (Low Frequency Oscillator) for dynamic color changes
-int colorLfo(float frequency, float amplitude) 
+int colorLfo(float frequency, float amplitude)
 {
   return (int)(amplitude * (1 + sin(TWO_PI * frequency * frameCount / 60)) / 2);
 }
 
 // Class representing a horizontal line that moves down the screen
-class HLine 
-{ 
+class HLine
+{
   float ypos, speed;
-  float size = height / 10.0; 
+  float size = height / 10.0;
   int xpos;
   int index;
-  HLine (float y, float s, int x, int i) 
-  {  
-    ypos = y; 
-    speed = s; 
+  HLine (float y, float s, int x, int i)
+  {
+    ypos = y;
+    speed = s;
     xpos = x;
     index = i;
-  } 
+  }
 
-  void update(float amplitude) { 
+  void update(float amplitude) {
     colorMode(HSB, 360, 100, 100);
-    ypos += speed; 
-    if (ypos > height) 
-    { 
-      ypos = 0; 
-    } 
+    ypos += speed;
+    if (ypos > height)
+    {
+      ypos = 0;
+    }
     int c = color(colorLfo(0.1 * speed, 360) + (index * 20), 50, 100 * amplitude);
-    line(xpos, ypos, width, ypos); 
+    line(xpos, ypos, width, ypos);
     stroke(c);
     strokeWeight(size);
     strokeCap(SQUARE);
-  } 
-} 
+  }
+}
 
 // Function to create horizontal lines with random positions and speeds
 void createLines( int amount) {
-  for (int i = 0; i < amount; i++) 
+  for (int i = 0; i < amount; i++)
   {
     float ypos = i * height / amount;
     float speed = 1;
     float xpos = 0;
     hLines.add(new HLine(ypos, speed, (int)xpos, i));
-    
   }
 }
 
 //scrape pixel data and convert to dmx values
 void scraper()
 {
-  colorMode(RGB,255);
-  loadPixels(); 
+  colorMode(RGB, 255);
+  loadPixels();
 
-// scrape pixel data based on the number of strips and strip length
-  for (int strip = 0; strip < amountOfStrips ; strip++) 
+  // scrape pixel data based on the number of strips and strip length
+  for (int strip = 0; strip < amountOfStrips; strip++)
   {
-    for (int pixel = 0; pixel < stripLength ; pixel++) 
+    for (int pixel = 0; pixel < stripLength; pixel++)
     {
       int x = (strip * (width / amountOfStrips) + (width / (2 * amountOfStrips)));
       int y = (pixel * (height / stripLength) );
@@ -124,7 +126,7 @@ void scraper()
       color currentPixel = pixels[constrain(pos, 0, pixels.length - 1)];
 
       int dmxIndex = (strip * stripLength + pixel) * 4;
-      if (dmxIndex < dmxData.length - 3) 
+      if (dmxIndex < dmxData.length - 3)
       {
         dmxData[dmxIndex]     = (byte) red    (currentPixel);
         dmxData[dmxIndex + 1] = (byte) green  (currentPixel);
@@ -154,19 +156,21 @@ void draw()
   // background(c);
 
   // display the loaded image
-  if (displayImage) 
+  if (displayImage)
   {
     image(myImage, 0, 0, width, height);
   }
-  
+
 
   pushMatrix();
   scale(2);
   translate(width/4, height/4);
-  rotate(radians(frameCount % 360));
+  // rotate(radians(frameCount % 360));
   translate(-width/2, -height/2);
-    // display and update horizontal lines
-  for (HLine line : hLines) 
+
+
+  // display and update horizontal lines
+  for (HLine line : hLines)
   {
     line.update(1.0);
   }
@@ -184,11 +188,42 @@ void draw()
   }
 
 
-  
+
   // scrape pixel data and convert to dmx values{}}
   scraper();
 
   // send dmx to localhost
-  
+
   // artnet.multicastDmx(0, 0, dmxData);
+}
+
+// a function that reads an resolume xml file and extracts the color values for each fixture (not fully implemented)
+void readXml(String filePath)
+{
+  xml = loadXML(filePath);
+  XML[] ScreenSetups = xml.getChildren("ScreenSetup");
+  println("Number of ScreenSetups: " + ScreenSetups.length);
+  for (XML ScreenSetup : ScreenSetups)
+  {
+    XML[] Screens = ScreenSetup.getChildren("screens");
+    println("Number of Screens: " + Screens.length);
+    for (XML Screen : Screens)
+    {
+      XML[] DmxScreens = Screen.getChildren("DmxScreen");
+      println("Number of DmxScreens: " + DmxScreens.length);
+      for (XML DmxScreen : DmxScreens)
+      {
+        XML[] Layers = DmxScreen.getChildren("layers");
+        println("Number of Layers: " + Layers.length);
+        for (XML Layer : Layers)
+        {
+          XML[] DmxSlices = Layer.getChildren("DmxSlice");
+          println("Number of DmxSlices: " + DmxSlices.length);
+          for (XML DmxSlice : DmxSlices)
+          {
+          }
+        }
+      }
+    }
+  }
 }
