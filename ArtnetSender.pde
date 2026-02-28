@@ -221,6 +221,13 @@ void readXml(String filePath)
           println("Number of DmxSlices: " + DmxSlices.length);
           for (XML DmxSlice : DmxSlices)
           {
+            XML[] InputRect = DmxSlice.getChildren("InputRect");
+              println("Number of InputRect: " + InputRect.length);
+              for (XML rect : InputRect)
+              {
+                XML[] V = rect.getChildren("v");
+                println("Number of V: " + V.length);
+              }
           }
         }
       }
