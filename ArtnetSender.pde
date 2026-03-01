@@ -2,9 +2,16 @@ import ch.bildspur.artnet.*;
 
 
 
+////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////// HELLO THERE //////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+
+
+
 
 /*
-  ArtnetSender.pde
+  Written by Sem Schreuder, 2026
+ 
  A simple Processing sketch that sends DMX data over Art-Net based on pixel data from an image.
  It also includes moving horizontal lines for visual effect.
  
@@ -30,11 +37,12 @@ import ch.bildspur.artnet.*;
 String IP = "127.0.0.1";
 // String IP = "10.254.254.254";
 // String IP = "192.168.1.245";
-int linesAmount = 0;
+int linesAmount = 40;
 boolean displayImage = true;
 boolean blurImage = false;
 int fps = 30;
 float scale = 1;
+// these are not needed now
 int amountOfStrips = 8;
 int stripLength = 21;
 
@@ -82,30 +90,30 @@ int colorLfo(float frequency, float amplitude)
 // Class representing a horizontal line that moves down the screen
 class HLine
 {
-  float ypos, speed;
-  float size = height / 10.0;
-  int xpos;
+  float xpos, speed;
+  float size = linesAmount / 5.0;
+  int ypos;
   int index;
-  HLine (float y, float s, int x, int i)
+  HLine (float x, float s, int y, int i)
   {
-    ypos = y;
-    speed = s;
     xpos = x;
+    speed = s;
+    ypos = y;
     index = i;
   }
 
   void update(float amplitude) {
     colorMode(HSB, 360, 100, 100);
-    ypos += speed;
-    if (ypos > height)
+    xpos += speed;
+    if (xpos > width)
     {
-      ypos = 0;
+      xpos = 0;
     }
-    int c = color(colorLfo(0.1 * speed, 360) + (index * 20), 50, 100 * amplitude);
-    line(xpos, ypos, width, ypos);
+    int c = color(colorLfo(0.1 * speed, 360) + index, 50, 100 * amplitude);
     stroke(c);
     strokeWeight(size);
     strokeCap(SQUARE);
+    line(xpos, 0, xpos, height);
   }
 }
 
@@ -113,10 +121,10 @@ class HLine
 void createLines( int amount) {
   for (int i = 0; i < amount; i++)
   {
-    float ypos = i * height / amount;
+    float xpos = i * width / amount;
     float speed = .2;
-    float xpos = 0;
-    hLines.add(new HLine(ypos, speed, (int)xpos, i));
+    float ypos = 0;
+    hLines.add(new HLine(xpos, speed, (int)ypos, i));
   }
 }
 
@@ -134,21 +142,22 @@ void draw()
   byte[] dataInput = artnet.readDmxData(0, 0);
   // int c = color(dataInput[0] & 0xFF, dataInput[1] & 0xFF, dataInput[2] & 0xFF);
 
-  if (displayImage)
-  {
-    image(myImage, 0, 0, width, height);
-  }
+
 
   pushMatrix();
-  scale(2);
-  translate(width/4, height/4);
-  // rotate(radians(frameCount % 360));
-  translate(-width/2, -height/2);
+
+
   for (HLine line : hLines)
   {
     line.update(1.0);
   }
+
   popMatrix();
+
+  if (displayImage)
+  {
+    image(myImage, 0, 0, width, height);
+  }
 
   if (blurImage)
   {
