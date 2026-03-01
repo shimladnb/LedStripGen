@@ -1,5 +1,8 @@
 import ch.bildspur.artnet.*;
 
+
+
+
 /*
   ArtnetSender.pde
  A simple Processing sketch that sends DMX data over Art-Net based on pixel data from an image.
@@ -15,12 +18,18 @@ import ch.bildspur.artnet.*;
  - plan out Artnet control from the desk
  */
 
-// String IP = "192.168.1.245";
+
+
+
+////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////// WE SETUP HERE /////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
 
 
 // user params
 String IP = "127.0.0.1";
 // String IP = "10.254.254.254";
+// String IP = "192.168.1.245";
 int linesAmount = 7;
 boolean displayImage = false;
 boolean blurImage = true;
@@ -29,9 +38,7 @@ float scale = 1;
 int amountOfStrips = 8;
 int stripLength = 21;
 
-
-
-
+// global variables
 ArtNetClient artnet;
 byte[] dmxData = new byte[512];
 byte[] dmxDataInput = new byte[512];
@@ -45,26 +52,20 @@ void setup()
 {
   size(560, 70, P2D);
   frameRate(fps);
-
   //myImage = loadImage("ColorGrid.png");
   // myImage = loadImage("ColorGrid2.png");
   //myImage = loadImage("Gradient.png");
   // myImage = loadImage("RainbowDiagonal.png");
   // myImage = loadImage("80x640ColorGrid.png");
   myImage = loadImage("Horse.png");
-
   createLines(linesAmount);
-
-  //colorMode(RGB, 255);
   textAlign(CENTER, CENTER);
   textSize(20);
-
-  // create artnet client without buffer (no receving needed)
   artnet = new ArtNetClient();
   artnet.start();
-
   readXml("ArtnetSenderADM.xml");
 }
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -121,7 +122,6 @@ void createLines( int amount) {
 }
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////// WE DRAW HERE ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
@@ -143,27 +143,20 @@ void draw()
     image(myImage, 0, 0, width, height);
   }
 
-
   pushMatrix();
   scale(2);
   translate(width/4, height/4);
   // rotate(radians(frameCount % 360));
   translate(-width/2, -height/2);
 
-
   // display and update horizontal lines
   for (HLine line : hLines)
   {
     line.update(1.0);
   }
-
-
-
   popMatrix();
 
 
-
-  // blur the image for a more dynamic effect (optional)
   if (blurImage)
   {
     filter(BLUR, 2);
@@ -171,13 +164,10 @@ void draw()
 
 
 
-  // scrape pixel data and convert to dmx values{}}
   // scraper();
   scraperFromXml();
 
-  // send dmx to localhost
 
-  // artnet.multicastDmx(0, 0, dmxData);
 }
 
 
@@ -229,6 +219,8 @@ void readXml(String filePath)
       }
     }
   }
+  // println("Total InputRect centers: " + inputRectX.size());
+  // println("Total InputRect centers: " + inputRectY.size());
 }
 
 
