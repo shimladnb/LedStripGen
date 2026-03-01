@@ -1,12 +1,5 @@
 import ch.bildspur.artnet.*;
 
-ArtNetClient artnet;
-byte[] dmxData = new byte[512];
-byte[] dmxDataInput = new byte[512];
-ArrayList<HLine> hLines = new ArrayList<HLine>();
-PImage myImage;
-XML xml;
-
 /*
   ArtnetSender.pde
  A simple Processing sketch that sends DMX data over Art-Net based on pixel data from an image.
@@ -23,9 +16,10 @@ XML xml;
  */
 
 // String IP = "192.168.1.245";
-String IP = "10.254.254.254";
+
 
 // user params
+String IP = "10.254.254.254";
 int linesAmount = 7;
 boolean displayImage = false;
 boolean blurImage = true;
@@ -35,6 +29,16 @@ int amountOfStrips = 8;
 int stripLength = 21;
 
 
+
+
+ArtNetClient artnet;
+byte[] dmxData = new byte[512];
+byte[] dmxDataInput = new byte[512];
+ArrayList<HLine> hLines = new ArrayList<HLine>();
+PImage myImage;
+XML xml;
+ArrayList<int[]> inputRectX = new ArrayList<int[]>();
+ArrayList<int[]> inputRectY = new ArrayList<int[]>();
 
 void setup()
 {
@@ -108,7 +112,7 @@ void createLines( int amount) {
   for (int i = 0; i < amount; i++)
   {
     float ypos = i * height / amount;
-    float speed = 1;
+    float speed = .2;
     float xpos = 0;
     hLines.add(new HLine(ypos, speed, (int)xpos, i));
   }
@@ -172,12 +176,11 @@ void draw()
   // artnet.multicastDmx(0, 0, dmxData);
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////// WE DO SOME NERDY STUFF HERE ///////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 
-// a function that reads an resolume xml file and extracts the color values for each fixture (not fully implemented)
+// a function that reads an resolume xml file and extracts the color values for each fixture 
 void readXml(String filePath)
 {
   xml = loadXML(filePath);
@@ -206,10 +209,11 @@ void readXml(String filePath)
             for (XML rect : InputRect)
             {
               XML[] v = rect.getChildren("v");
-              v[0].getContent(); // x
-              v[1].getContent(); // y 
-              v[2].getContent(); // width
-              v[3].getContent(); // height
+              int centerX = v[0].getInt("x") + (v[2].getInt("x") - v[0].getInt("x")) / 2;
+              int centerY = v[0].getInt("y") + (v[2].getInt("y") - v[0].getInt("y")) / 2;
+              println("center:" + centerX + ", " + centerY);
+              inputRectX.add(new int[]{centerX});
+              inputRectY.add(new int[]{centerY});
             }
           }
         }
