@@ -30,9 +30,9 @@ import ch.bildspur.artnet.*;
 String IP = "127.0.0.1";
 // String IP = "10.254.254.254";
 // String IP = "192.168.1.245";
-int linesAmount = 7;
-boolean displayImage = false;
-boolean blurImage = true;
+int linesAmount = 0;
+boolean displayImage = true;
+boolean blurImage = false;
 int fps = 30;
 float scale = 1;
 int amountOfStrips = 8;
@@ -57,7 +57,7 @@ void setup()
   //myImage = loadImage("Gradient.png");
   // myImage = loadImage("RainbowDiagonal.png");
   // myImage = loadImage("80x640ColorGrid.png");
-  myImage = loadImage("Horse.png");
+  myImage = loadImage("InputMap-01.png");
   createLines(linesAmount);
   textAlign(CENTER, CENTER);
   textSize(20);
@@ -65,7 +65,6 @@ void setup()
   artnet.start();
   readXml("ArtnetSenderADM.xml");
 }
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -131,13 +130,10 @@ void createLines( int amount) {
 void draw()
 {
   background(0);
-
   // read artnet data
   byte[] dataInput = artnet.readDmxData(0, 0);
   // int c = color(dataInput[0] & 0xFF, dataInput[1] & 0xFF, dataInput[2] & 0xFF);
-  // background(c);
 
-  // display the loaded image
   if (displayImage)
   {
     image(myImage, 0, 0, width, height);
@@ -148,28 +144,19 @@ void draw()
   translate(width/4, height/4);
   // rotate(radians(frameCount % 360));
   translate(-width/2, -height/2);
-
-  // display and update horizontal lines
   for (HLine line : hLines)
   {
     line.update(1.0);
   }
   popMatrix();
 
-
   if (blurImage)
   {
     filter(BLUR, 2);
   }
-
-
-
   // scraper();
   scraperFromXml();
-
-
 }
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -178,8 +165,7 @@ void draw()
 
 
 
-
-// a function that reads an resolume xml file and extracts the color values for each fixture 
+// a function that reads an resolume xml file and extracts the color values for each fixture
 void readXml(String filePath)
 {
   xml = loadXML(filePath);
