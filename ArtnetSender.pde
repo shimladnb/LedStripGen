@@ -19,7 +19,8 @@ import ch.bildspur.artnet.*;
 
 
 // user params
-String IP = "10.254.254.254";
+String IP = "127.0.0.1";
+// String IP = "10.254.254.254";
 int linesAmount = 7;
 boolean displayImage = false;
 boolean blurImage = true;
@@ -69,6 +70,7 @@ void setup()
 ////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////// WE DEFINE THE ARTSY STUFF HERE /////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
+
 
 
 // Function to create a color LFO (Low Frequency Oscillator) for dynamic color changes
@@ -125,6 +127,7 @@ void createLines( int amount) {
 ////////////////////////////////////////////////////////////////////////////////////
 
 
+
 void draw()
 {
   background(0);
@@ -169,16 +172,22 @@ void draw()
 
 
   // scrape pixel data and convert to dmx values{}}
-  scraper();
+  // scraper();
+  scraperFromXml();
 
   // send dmx to localhost
 
   // artnet.multicastDmx(0, 0, dmxData);
 }
 
+
+
 ////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////// WE DO SOME NERDY STUFF HERE ///////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
+
+
+
 
 // a function that reads an resolume xml file and extracts the color values for each fixture 
 void readXml(String filePath)
@@ -211,7 +220,7 @@ void readXml(String filePath)
               XML[] v = rect.getChildren("v");
               int centerX = v[0].getInt("x") + (v[2].getInt("x") - v[0].getInt("x")) / 2;
               int centerY = v[0].getInt("y") + (v[2].getInt("y") - v[0].getInt("y")) / 2;
-              println("center:" + centerX + ", " + centerY);
+              // println("center:" + centerX + ", " + centerY);
               inputRectX.add(new int[]{centerX});
               inputRectY.add(new int[]{centerY});
             }
@@ -247,6 +256,33 @@ void scraper()
         dmxData[dmxIndex + 2] = (byte) blue   (currentPixel);
         dmxData[dmxIndex + 3] = (byte) min(red(currentPixel), green(currentPixel), blue(currentPixel));
       }
+    }
+  }
+  artnet.unicastDmx(IP, 0, 0, dmxData);
+}
+
+
+
+// a function that scrapes pixel data based on the input rectangles defined in the resolume xml file
+void scraperFromXml()
+{
+  colorMode(RGB, 255);
+  loadPixels();
+
+  for (int i = 0; i < inputRectX.size(); i++)
+  {
+    int x = inputRectX.get(i)[0];
+    int y = inputRectY.get(i)[0];
+    int pos = (y * width + x) % (width * height);
+    color currentPixel = pixels[constrain(pos, 0, pixels.length - 1)];
+
+    int dmxIndex = i * 4;
+    if (dmxIndex < dmxData.length - 3)
+    {
+      dmxData[dmxIndex]     = (byte) red    (currentPixel);
+      dmxData[dmxIndex + 1] = (byte) green  (currentPixel);
+      dmxData[dmxIndex + 2] = (byte) blue   (currentPixel);
+      dmxData[dmxIndex + 3] = (byte) min(red(currentPixel), green(currentPixel), blue(currentPixel));
     }
   }
   artnet.unicastDmx(IP, 0, 0, dmxData);
