@@ -21,8 +21,9 @@ import ch.bildspur.artnet.*;
  - 16 x 32 strips scraper CHECK
  - add more visual effects
  - Artnet receiver to visualize incoming data CHECK
- - image files for lines
- - plan out Artnet control from the desk
+ - image files for lines CHECK
+ - plan out Artnet control from the desk CHECK  
+  - read resolume xml for scraping CHECK
  */
 
 
@@ -47,7 +48,7 @@ float scale = 2;
 
 // global variables
 ArtNetClient artnet;
-byte[] dmxData = new byte[512];
+byte[] dmxData0 = new byte[512];
 byte[] dmxData1 = new byte[512];
 byte[] dmxData2 = new byte[512];
 byte[] dmxData3 = new byte[512];
@@ -58,7 +59,9 @@ byte[] dmxData7 = new byte[512];
 byte[] dmxData8 = new byte[512];
 byte[] dmxData9 = new byte[512];
 byte[] dmxData10 = new byte[512];
+
 byte[] dmxDataInput = new byte[512];
+
 ArrayList<HLine> hLines = new ArrayList<HLine>();
 PImage myImage;
 PImage linesImage;
@@ -257,16 +260,16 @@ void scraper()
       color currentPixel = pixels[constrain(pos, 0, pixels.length - 1)];
 
       int dmxIndex = (strip * stripLength + pixel) * 4;
-      if (dmxIndex < dmxData.length - 3)
+      if (dmxIndex < dmxData0.length - 3)
       {
-        dmxData[dmxIndex]     = (byte) red    (currentPixel);
-        dmxData[dmxIndex + 1] = (byte) green  (currentPixel);
-        dmxData[dmxIndex + 2] = (byte) blue   (currentPixel);
-        dmxData[dmxIndex + 3] = (byte) min(red(currentPixel), green(currentPixel), blue(currentPixel));
+        dmxData0[dmxIndex]     = (byte) red    (currentPixel);
+        dmxData0[dmxIndex + 1] = (byte) green  (currentPixel);
+        dmxData0[dmxIndex + 2] = (byte) blue   (currentPixel);
+        dmxData0[dmxIndex + 3] = (byte) min(red(currentPixel), green(currentPixel), blue(currentPixel));
       }
     }
   }
-  artnet.unicastDmx(IP, 0, 0, dmxData);
+  artnet.unicastDmx(IP, 0, 0, dmxData0);
 }
 
 
@@ -290,7 +293,7 @@ void scraperFromXml()
     
     if (indexInUniverse < 512 - 3)
     {
-      byte[][] dmxDataArray = {dmxData, dmxData1, dmxData2, dmxData3, dmxData4, dmxData5, dmxData6, dmxData7, dmxData8, dmxData9, dmxData10};
+      byte[][] dmxDataArray = {dmxData0, dmxData1, dmxData2, dmxData3, dmxData4, dmxData5, dmxData6, dmxData7, dmxData8, dmxData9, dmxData10};
       
       if (universe < dmxDataArray.length)
       {
@@ -302,15 +305,15 @@ void scraperFromXml()
     }
   }
   
-  artnet.unicastDmx(IP, 0, 0, dmxData);
-  artnet.unicastDmx(IP, 0, 1, dmxData1);
-  artnet.unicastDmx(IP, 0, 2, dmxData2);
-  artnet.unicastDmx(IP, 0, 3, dmxData3);
-  artnet.unicastDmx(IP, 0, 4, dmxData4);
-  artnet.unicastDmx(IP, 0, 5, dmxData5);
-  artnet.unicastDmx(IP, 0, 6, dmxData6);
-  artnet.unicastDmx(IP, 0, 7, dmxData7);
-  artnet.unicastDmx(IP, 0, 8, dmxData8);
-  artnet.unicastDmx(IP, 0, 9, dmxData9);
-  artnet.unicastDmx(IP, 0, 10, dmxData10);
+  byte[][] dmxDataArray = {dmxData0, dmxData1, dmxData2, dmxData3};
+  for (int i = 0; i < dmxDataArray.length; i++) {
+    artnet.unicastDmx(IP, 0, i, dmxDataArray[i]);
+  }
+  // artnet.unicastDmx(IP, 0, 4, dmxData4);
+  // artnet.unicastDmx(IP, 0, 5, dmxData5);
+  // artnet.unicastDmx(IP, 0, 6, dmxData6);
+  // artnet.unicastDmx(IP, 0, 7, dmxData7);
+  // artnet.unicastDmx(IP, 0, 8, dmxData8);
+  // artnet.unicastDmx(IP, 0, 9, dmxData9);
+  // artnet.unicastDmx(IP, 0, 10, dmxData10);
 }
