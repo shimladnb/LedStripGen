@@ -37,18 +37,27 @@ import ch.bildspur.artnet.*;
 String IP = "127.0.0.1";
 // String IP = "10.254.254.254";
 // String IP = "192.168.1.245";
-int linesAmount = 8;
+int linesAmount = 3;
 boolean displayImage = false;
 boolean blurImage = false;
 int fps = 30;
-float scale = 1;
-// these are not needed now
-int amountOfStrips = 12;
-int stripLength = 21;
+float scale = 2;
+
+
 
 // global variables
 ArtNetClient artnet;
 byte[] dmxData = new byte[512];
+byte[] dmxData1 = new byte[512];
+byte[] dmxData2 = new byte[512];
+byte[] dmxData3 = new byte[512];
+byte[] dmxData4 = new byte[512];
+byte[] dmxData5 = new byte[512];
+byte[] dmxData6 = new byte[512];
+byte[] dmxData7 = new byte[512];
+byte[] dmxData8 = new byte[512];
+byte[] dmxData9 = new byte[512];
+byte[] dmxData10 = new byte[512];
 byte[] dmxDataInput = new byte[512];
 ArrayList<HLine> hLines = new ArrayList<HLine>();
 PImage myImage;
@@ -107,16 +116,16 @@ class HLine
   void update(float amplitude) {
     colorMode(HSB, 360, 100, 100);
     xpos += speed;
-    if (xpos + linesImage.width / 16 / 2 > width)
+    if (xpos  > width)
     {
-      xpos = 0 - linesImage.width / 16  ;
+      xpos = 0   ;
     }
     int alpha = (int)(255 * amplitude);
-    tint(colorLfo(0.5, 255),100,100, alpha);
+    tint(colorLfo(0.5 * index * 0.05, 255 ), 100, 100, alpha);
     pushMatrix();
-    translate(xpos + linesImage.width / 16, height / 2);
-    rotate(radians(20));
-    image(linesImage, -linesImage.width / 16, -height / 2, linesImage.width / 2, height);
+    translate(xpos + linesImage.width / 16, height / 4);
+    rotate(radians(40));
+    image(linesImage, -linesImage.width / 8, -height / 2, linesImage.width / 6, height * 4);
     popMatrix();
     noTint();
   }
@@ -148,8 +157,10 @@ void draw()
   // int c = color(dataInput[0] & 0xFF, dataInput[1] & 0xFF, dataInput[2] & 0xFF);
 
 
-
-  pushMatrix();
+  // scale viewport from the center
+  translate(width / 2, height / 2);
+  scale(scale);
+  translate(-width / 2, -height / 2);
 
 
   for (HLine line : hLines)
@@ -157,7 +168,7 @@ void draw()
     line.update(1.0);
   }
 
-  popMatrix();
+
 
   if (displayImage)
   {
@@ -168,6 +179,9 @@ void draw()
   {
     filter(BLUR, 2);
   }
+
+
+
   // scraper();
   scraperFromXml();
 }
@@ -229,6 +243,8 @@ void scraper()
 {
   colorMode(RGB, 255);
   loadPixels();
+  int amountOfStrips = 12;
+  int stripLength = 21;
 
   // scrape pixel data based on the number of strips and strip length
   for (int strip = 0; strip < amountOfStrips; strip++)
@@ -269,13 +285,32 @@ void scraperFromXml()
     color currentPixel = pixels[constrain(pos, 0, pixels.length - 1)];
 
     int dmxIndex = i * 4;
-    if (dmxIndex < dmxData.length - 3)
+    int universe = dmxIndex / 512;
+    int indexInUniverse = dmxIndex % 512;
+    
+    if (indexInUniverse < 512 - 3)
     {
-      dmxData[dmxIndex]     = (byte) red    (currentPixel);
-      dmxData[dmxIndex + 1] = (byte) green  (currentPixel);
-      dmxData[dmxIndex + 2] = (byte) blue   (currentPixel);
-      dmxData[dmxIndex + 3] = (byte) min(red(currentPixel), green(currentPixel), blue(currentPixel));
+      byte[][] dmxDataArray = {dmxData, dmxData1, dmxData2, dmxData3, dmxData4, dmxData5, dmxData6, dmxData7, dmxData8, dmxData9, dmxData10};
+      
+      if (universe < dmxDataArray.length)
+      {
+        dmxDataArray[universe][indexInUniverse]     = (byte) red    (currentPixel);
+        dmxDataArray[universe][indexInUniverse + 1] = (byte) green  (currentPixel);
+        dmxDataArray[universe][indexInUniverse + 2] = (byte) blue   (currentPixel);
+        dmxDataArray[universe][indexInUniverse + 3] = (byte) min(red(currentPixel), green(currentPixel), blue(currentPixel));
+      }
     }
   }
+  
   artnet.unicastDmx(IP, 0, 0, dmxData);
+  artnet.unicastDmx(IP, 0, 1, dmxData1);
+  artnet.unicastDmx(IP, 0, 2, dmxData2);
+  artnet.unicastDmx(IP, 0, 3, dmxData3);
+  artnet.unicastDmx(IP, 0, 4, dmxData4);
+  artnet.unicastDmx(IP, 0, 5, dmxData5);
+  artnet.unicastDmx(IP, 0, 6, dmxData6);
+  artnet.unicastDmx(IP, 0, 7, dmxData7);
+  artnet.unicastDmx(IP, 0, 8, dmxData8);
+  artnet.unicastDmx(IP, 0, 9, dmxData9);
+  artnet.unicastDmx(IP, 0, 10, dmxData10);
 }
