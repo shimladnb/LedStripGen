@@ -48,17 +48,7 @@ float scale = 2;
 
 // global variables
 ArtNetClient artnet;
-byte[] dmxData0 = new byte[512];
-byte[] dmxData1 = new byte[512];
-byte[] dmxData2 = new byte[512];
-byte[] dmxData3 = new byte[512];
-byte[] dmxData4 = new byte[512];
-byte[] dmxData5 = new byte[512];
-byte[] dmxData6 = new byte[512];
-byte[] dmxData7 = new byte[512];
-byte[] dmxData8 = new byte[512];
-byte[] dmxData9 = new byte[512];
-byte[] dmxData10 = new byte[512];
+byte[][] dmxDataArray = new byte[5][512];
 
 byte[] dmxDataInput = new byte[512];
 
@@ -260,16 +250,16 @@ void scraper()
       color currentPixel = pixels[constrain(pos, 0, pixels.length - 1)];
 
       int dmxIndex = (strip * stripLength + pixel) * 4;
-      if (dmxIndex < dmxData0.length - 3)
+      if (dmxIndex < dmxDataArray[0].length - 3)
       {
-        dmxData0[dmxIndex]     = (byte) red    (currentPixel);
-        dmxData0[dmxIndex + 1] = (byte) green  (currentPixel);
-        dmxData0[dmxIndex + 2] = (byte) blue   (currentPixel);
-        dmxData0[dmxIndex + 3] = (byte) min(red(currentPixel), green(currentPixel), blue(currentPixel));
+        dmxDataArray[0][dmxIndex]     = (byte) red    (currentPixel);
+        dmxDataArray[0][dmxIndex + 1] = (byte) green  (currentPixel);
+        dmxDataArray[0][dmxIndex + 2] = (byte) blue   (currentPixel);
+        dmxDataArray[0][dmxIndex + 3] = (byte) min(red(currentPixel), green(currentPixel), blue(currentPixel));
       }
     }
   }
-  artnet.unicastDmx(IP, 0, 0, dmxData0);
+  artnet.unicastDmx(IP, 0, 0, dmxDataArray[0]);
 }
 
 
@@ -293,8 +283,6 @@ void scraperFromXml()
     
     if (indexInUniverse < 512 - 3)
     {
-      byte[][] dmxDataArray = {dmxData0, dmxData1, dmxData2, dmxData3, dmxData4, dmxData5, dmxData6, dmxData7, dmxData8, dmxData9, dmxData10};
-      
       if (universe < dmxDataArray.length)
       {
         dmxDataArray[universe][indexInUniverse]     = (byte) red    (currentPixel);
@@ -305,15 +293,7 @@ void scraperFromXml()
     }
   }
   
-  byte[][] dmxDataArray = {dmxData0, dmxData1, dmxData2, dmxData3};
   for (int i = 0; i < dmxDataArray.length; i++) {
     artnet.unicastDmx(IP, 0, i, dmxDataArray[i]);
   }
-  // artnet.unicastDmx(IP, 0, 4, dmxData4);
-  // artnet.unicastDmx(IP, 0, 5, dmxData5);
-  // artnet.unicastDmx(IP, 0, 6, dmxData6);
-  // artnet.unicastDmx(IP, 0, 7, dmxData7);
-  // artnet.unicastDmx(IP, 0, 8, dmxData8);
-  // artnet.unicastDmx(IP, 0, 9, dmxData9);
-  // artnet.unicastDmx(IP, 0, 10, dmxData10);
 }
