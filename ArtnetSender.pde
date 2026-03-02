@@ -37,13 +37,13 @@ import ch.bildspur.artnet.*;
 String IP = "127.0.0.1";
 // String IP = "10.254.254.254";
 // String IP = "192.168.1.245";
-int linesAmount = 40;
-boolean displayImage = true;
+int linesAmount = 8;
+boolean displayImage = false;
 boolean blurImage = false;
 int fps = 30;
 float scale = 1;
 // these are not needed now
-int amountOfStrips = 8;
+int amountOfStrips = 12;
 int stripLength = 21;
 
 // global variables
@@ -52,6 +52,7 @@ byte[] dmxData = new byte[512];
 byte[] dmxDataInput = new byte[512];
 ArrayList<HLine> hLines = new ArrayList<HLine>();
 PImage myImage;
+PImage linesImage;
 XML xml;
 ArrayList<int[]> inputRectX = new ArrayList<int[]>();
 ArrayList<int[]> inputRectY = new ArrayList<int[]>();
@@ -66,6 +67,7 @@ void setup()
   // myImage = loadImage("RainbowDiagonal.png");
   // myImage = loadImage("80x640ColorGrid.png");
   myImage = loadImage("InputMap-01.png");
+  linesImage = loadImage("GradientLineVertical.png");
   createLines(linesAmount);
   textAlign(CENTER, CENTER);
   textSize(20);
@@ -105,15 +107,18 @@ class HLine
   void update(float amplitude) {
     colorMode(HSB, 360, 100, 100);
     xpos += speed;
-    if (xpos > width)
+    if (xpos + linesImage.width / 16 / 2 > width)
     {
-      xpos = 0;
+      xpos = 0 - linesImage.width / 16  ;
     }
-    int c = color(colorLfo(0.1 * speed, 360) + index, 50, 100 * amplitude);
-    stroke(c);
-    strokeWeight(size);
-    strokeCap(SQUARE);
-    line(xpos, 0, xpos, height);
+    int alpha = (int)(255 * amplitude);
+    tint(colorLfo(0.5, 255),100,100, alpha);
+    pushMatrix();
+    translate(xpos + linesImage.width / 16, height / 2);
+    rotate(radians(20));
+    image(linesImage, -linesImage.width / 16, -height / 2, linesImage.width / 2, height);
+    popMatrix();
+    noTint();
   }
 }
 
@@ -122,7 +127,7 @@ void createLines( int amount) {
   for (int i = 0; i < amount; i++)
   {
     float xpos = i * width / amount;
-    float speed = .2;
+    float speed = 1;
     float ypos = 0;
     hLines.add(new HLine(xpos, speed, (int)ypos, i));
   }
