@@ -12,9 +12,7 @@ import ch.bildspur.artnet.*;
 /*
   Written by Sem Schreuder, 2026
  
- A simple Processing sketch that sends DMX data over Art-Net based on pixel data from an image.
- It also includes moving horizontal lines for visual effect.
- 
+ A Processing sketch that sends DMX data over Art-Net based on pixel data from the viewport.
  Make sure to include the ArtNet library in your Processing environment to run this code.
  
  todo:
@@ -22,8 +20,8 @@ import ch.bildspur.artnet.*;
  - add more visual effects
  - Artnet receiver to visualize incoming data CHECK
  - image files for lines CHECK
- - plan out Artnet control from the desk CHECK  
-  - read resolume xml for scraping CHECK
+ - plan out Artnet control from the desk CHECK
+ - read resolume xml for scraping CHECK
  */
 
 
@@ -32,6 +30,7 @@ import ch.bildspur.artnet.*;
 ////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// WE SETUP HERE /////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
+
 
 
 // user params
@@ -63,9 +62,9 @@ void setup()
 {
   size(560, 70, P2D);
   frameRate(fps);
-  //myImage = loadImage("ColorGrid.png");
+  // myImage = loadImage("ColorGrid.png");
   // myImage = loadImage("ColorGrid2.png");
-  //myImage = loadImage("Gradient.png");
+  // myImage = loadImage("Gradient.png");
   // myImage = loadImage("RainbowDiagonal.png");
   // myImage = loadImage("80x640ColorGrid.png");
   myImage = loadImage("InputMap-01.png");
@@ -76,6 +75,8 @@ void setup()
   artnet = new ArtNetClient();
   artnet.start();
   readXml("ArtnetSenderADM.xml");
+
+  //a slider that controls the rotation of the lines
 }
 
 
@@ -95,7 +96,7 @@ int colorLfo(float frequency, float amplitude)
 class HLine
 {
   float xpos, speed;
-  float size = linesAmount / 5.0;
+  float size;
   int ypos;
   int index;
   HLine (float x, float s, int y, int i)
@@ -106,7 +107,7 @@ class HLine
     index = i;
   }
 
-  void update(float amplitude) {
+  void update(float amplitude, int rotate) {
     colorMode(HSB, 360, 100, 100);
     xpos += speed;
     if (xpos  > width)
@@ -117,7 +118,7 @@ class HLine
     tint(colorLfo(0.5 * index * 0.05, 255 ), 100, 100, alpha);
     pushMatrix();
     translate(xpos + linesImage.width / 16, height / 4);
-    rotate(radians(40));
+    rotate(radians(rotate));
     image(linesImage, -linesImage.width / 8, -height / 2, linesImage.width / 6, height * 4);
     popMatrix();
     noTint();
@@ -146,10 +147,10 @@ void draw()
 {
   background(0);
   // read artnet data
-  byte[] dataInput = artnet.readDmxData(0, 0);
+  byte[] dataInput = artnet.readDmxData(0, 8);
   // int c = color(dataInput[0] & 0xFF, dataInput[1] & 0xFF, dataInput[2] & 0xFF);
 
-
+  float rotate = ((dataInput[0] & 0xFF) / 255.0) * 40; // Map the first byte to a rotation angle between 0 and 360 degrees
   // scale viewport from the center
   translate(width / 2, height / 2);
   scale(scale);
@@ -158,7 +159,7 @@ void draw()
 
   for (HLine line : hLines)
   {
-    line.update(1.0);
+    line.update(1.0, (int)rotate);
   }
 
 
@@ -280,7 +281,7 @@ void scraperFromXml()
     int dmxIndex = i * 4;
     int universe = dmxIndex / 512;
     int indexInUniverse = dmxIndex % 512;
-    
+
     if (indexInUniverse < 512 - 3)
     {
       if (universe < dmxDataArray.length)
@@ -292,7 +293,7 @@ void scraperFromXml()
       }
     }
   }
-  
+
   for (int i = 0; i < dmxDataArray.length; i++) {
     artnet.unicastDmx(IP, 0, i, dmxDataArray[i]);
   }
