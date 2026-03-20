@@ -35,6 +35,7 @@ import ch.bildspur.artnet.*;
 
 // user params
 String IP = "127.0.0.1";
+String XmlFilePath = "ArtnetSenderADM-WORKING.xml";
 // String IP = "10.254.254.254";
 // String IP = "192.168.1.245";
 int linesAmount = 3;
@@ -45,7 +46,7 @@ float scale = 2;
 
 
 
-// global variables
+// global variables and setup
 ArtNetClient artnet;
 byte[][] dmxDataArray = new byte[5][512];
 
@@ -74,9 +75,7 @@ void setup()
   textSize(20);
   artnet = new ArtNetClient();
   artnet.start();
-  readXml("ArtnetSenderADM.xml");
-
-  //a slider that controls the rotation of the lines
+  readXml(XmlFilePath);
 }
 
 
@@ -216,8 +215,8 @@ void readXml(String filePath)
             for (XML rect : InputRect)
             {
               XML[] v = rect.getChildren("v");
-              int centerX = v[0].getInt("x") + (v[2].getInt("x") - v[0].getInt("x")) / 2;
-              int centerY = v[0].getInt("y") + (v[2].getInt("y") - v[0].getInt("y")) / 2;
+              int centerX = (int)(v[0].getFloat("x") + (v[2].getFloat("x") - v[0].getFloat("x")) / 2);
+              int centerY = (int)(v[0].getFloat("y") + (v[2].getFloat("y") - v[0].getFloat("y")) / 2);
               // println("center:" + centerX + ", " + centerY);
               inputRectX.add(new int[]{centerX});
               inputRectY.add(new int[]{centerY});
@@ -229,38 +228,6 @@ void readXml(String filePath)
   }
   // println("Total InputRect centers: " + inputRectX.size());
   // println("Total InputRect centers: " + inputRectY.size());
-}
-
-
-//scrape pixel data and convert to dmx values
-void scraper()
-{
-  colorMode(RGB, 255);
-  loadPixels();
-  int amountOfStrips = 12;
-  int stripLength = 21;
-
-  // scrape pixel data based on the number of strips and strip length
-  for (int strip = 0; strip < amountOfStrips; strip++)
-  {
-    for (int pixel = 0; pixel < stripLength; pixel++)
-    {
-      int x = (strip * (width / amountOfStrips) + (width / (2 * amountOfStrips)));
-      int y = (pixel * (height / stripLength) );
-      int pos = (y * width + x) % (width * height);
-      color currentPixel = pixels[constrain(pos, 0, pixels.length - 1)];
-
-      int dmxIndex = (strip * stripLength + pixel) * 4;
-      if (dmxIndex < dmxDataArray[0].length - 3)
-      {
-        dmxDataArray[0][dmxIndex]     = (byte) red    (currentPixel);
-        dmxDataArray[0][dmxIndex + 1] = (byte) green  (currentPixel);
-        dmxDataArray[0][dmxIndex + 2] = (byte) blue   (currentPixel);
-        dmxDataArray[0][dmxIndex + 3] = (byte) min(red(currentPixel), green(currentPixel), blue(currentPixel));
-      }
-    }
-  }
-  artnet.unicastDmx(IP, 0, 0, dmxDataArray[0]);
 }
 
 
