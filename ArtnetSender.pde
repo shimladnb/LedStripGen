@@ -256,14 +256,16 @@ void scraperFromXml()
   colorMode(RGB, 255);
   loadPixels();
 
-  for (int i = 0; i < inputRectX.size(); i++)
+  for (int i = 0; i < fixtures.size(); i++)
   {
-    int x = inputRectX.get(i)[0];
-    int y = inputRectY.get(i)[0];
+    int x = fixtures.get(i).x;
+    int y = fixtures.get(i).y;
+    int channelOffset = fixtures.get(i).channelOffset;
+
     int pos = (y * width + x) % (width * height);
     color currentPixel = pixels[constrain(pos, 0, pixels.length - 1)];
 
-    int dmxIndex = i * 4;
+    int dmxIndex = channelOffset;
     int universe = dmxIndex / 512;
     int indexInUniverse = dmxIndex % 512;
 
