@@ -1,4 +1,4 @@
-import ch.bildspur.artnet.*;
+
 
 
 
@@ -28,7 +28,7 @@ import ch.bildspur.artnet.*;
 
 
 ////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////// WE SETUP HERE /////////////////////////////////
+//////////////////////////////////// WE SETUP HERE /////////////////////////////////  
 ////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -39,48 +39,20 @@ String XmlFilePath = "ArtnetSenderADM-WORKING.xml";
 // String IP = "10.254.254.254";
 // String IP = "192.168.1.245";
 int linesAmount = 3;
-boolean displayImage = false;
+boolean displayImage = true;
 boolean blurImage = false;
 int fps = 30;
-float scale = 2;
+float scale = 1;
 
 
 
-// global variables and setup
-ArtNetClient artnet;
-byte[][] dmxDataArray = new byte[5][512];
 
-byte[] dmxDataInput = new byte[512];
-
-ArrayList<HLine> hLines = new ArrayList<HLine>();
-PImage myImage;
-PImage linesImage;
-XML xml;
-
-
-class XmlFixture
-{
-  int x, y, channelOffset;
-  XmlFixture(int x, int y, int channelOffset)
-  {
-    this.x = x;
-    this.y = y;
-    this.channelOffset = channelOffset;
-  }
-}
-
-ArrayList<XmlFixture> fixtures = new ArrayList<XmlFixture>();
 
 void setup()
 {
   size(560, 70, P2D);
   frameRate(fps);
-  // myImage = loadImage("ColorGrid.png");
-  // myImage = loadImage("ColorGrid2.png");
-  // myImage = loadImage("Gradient.png");
-  // myImage = loadImage("RainbowDiagonal.png");
-  // myImage = loadImage("80x640ColorGrid.png");
-  myImage = loadImage("InputMap-01.png");
+  myImage = loadImage("InputTester-01.png");
   linesImage = loadImage("GradientLineVertical.png");
   createLines(linesAmount);
   textAlign(CENTER, CENTER);
@@ -88,6 +60,13 @@ void setup()
   artnet = new ArtNetClient();
   artnet.start();
   readXml(XmlFilePath);
+
+  device = new AudioDevice(this, 44000, bands);
+  r_width = width/float(bands);
+  sample = new SoundFile(this, "beat.aiff");
+  sample.loop();
+  fft = new FFT(this, bands);
+  fft.input(sample);
 }
 
 
@@ -185,99 +164,15 @@ void draw()
     filter(BLUR, 2);
   }
 
+    fft.analyze();
+  for (int i = 0; i < bands; i++) {
+    
+    // smooth the FFT data by smoothing factor
+   sum[i] += (fft.spectrum[i] - sum[i]) * smooth_factor;
+    
+    // draw the rects with a scale factor
+    rect( i*r_width, height, r_width, -sum[i]*height*audioScale );
+  }
 
-
-  // scraper();
   scraperFromXml();
-}
-
-
-////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////// WE DO SOME NERDY STUFF HERE ///////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
-
-
-
-// a function that reads an resolume xml file and extracts the color values for each fixture
-void readXml(String filePath)
-{
-  xml = loadXML(filePath);
-  XML[] ScreenSetups = xml.getChildren("ScreenSetup");
-  println("Number of ScreenSetups: " + ScreenSetups.length);
-  for (XML ScreenSetup : ScreenSetups)
-  {
-    XML[] Screens = ScreenSetup.getChildren("screens");
-    println("Number of Screens: " + Screens.length);
-    for (XML Screen : Screens)
-    {
-      XML[] DmxScreens = Screen.getChildren("DmxScreen");
-      println("Number of DmxScreens: " + DmxScreens.length);
-      for (XML DmxScreen : DmxScreens)
-      {
-        XML[] Layers = DmxScreen.getChildren("layers");
-        println("Number of Layers: " + Layers.length);
-        for (XML Layer : Layers)
-        {
-          XML[] DmxSlices = Layer.getChildren("DmxSlice");
-          println("Number of DmxSlices: " + DmxSlices.length);
-          for (XML DmxSlice : DmxSlices)
-          {
-            
-            XML[] InputRect = DmxSlice.getChildren("InputRect");
-            XML[] Params = DmxSlice.getChildren("Params");
-            XML[] ParamRange = Params[1].getChildren("ParamRange");
-            int channelOffset = (int)ParamRange[0].getFloat("value");
-            for (XML rect : InputRect)
-            {              
-              XML[] v = rect.getChildren("v");
-              int centerX = (int)(v[0].getFloat("x") + (v[2].getFloat("x") - v[0].getFloat("x")) / 2);
-              int centerY = (int)(v[0].getFloat("y") + (v[2].getFloat("y") - v[0].getFloat("y")) / 2);              
-              XmlFixture fixture = new XmlFixture(centerX, centerY, channelOffset);
-              fixtures.add(fixture);
-            }
-          }
-        }
-      }
-    }
-  }
-  // println("Total InputRect centers: " + inputRectX.size());
-  // println("Total InputRect centers: " + inputRectY.size());
-}
-
-
-
-// a function that scrapes pixel data based on the input rectangles defined in the resolume xml file
-void scraperFromXml()
-{
-  colorMode(RGB, 255);
-  loadPixels();
-
-  for (int i = 0; i < fixtures.size(); i++)
-  {
-    int x = fixtures.get(i).x;
-    int y = fixtures.get(i).y;
-    int channelOffset = fixtures.get(i).channelOffset;
-
-    int pos = (y * width + x) % (width * height);
-    color currentPixel = pixels[constrain(pos, 0, pixels.length - 1)];
-
-    int dmxIndex = channelOffset;
-    int universe = dmxIndex / 512;
-    int indexInUniverse = dmxIndex % 512;
-
-    if (indexInUniverse < 512 - 3)
-    {
-      if (universe < dmxDataArray.length)
-      {
-        dmxDataArray[universe][indexInUniverse]     = (byte) red    (currentPixel);
-        dmxDataArray[universe][indexInUniverse + 1] = (byte) green  (currentPixel);
-        dmxDataArray[universe][indexInUniverse + 2] = (byte) blue   (currentPixel);
-        dmxDataArray[universe][indexInUniverse + 3] = (byte) min(red(currentPixel), green(currentPixel), blue(currentPixel));
-      }
-    }
-  }
-
-  for (int i = 0; i < dmxDataArray.length; i++) {
-    artnet.unicastDmx(IP, 0, i, dmxDataArray[i]);
-  }
 }
