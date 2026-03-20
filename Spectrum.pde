@@ -1,6 +1,7 @@
 import processing.sound.*;
 
 AudioIn input;
+
 // Declare the processing sound variables 
 SoundFile sample;
 FFT fft;
@@ -10,7 +11,7 @@ AudioDevice device;
 int audioScale=5;
 
 // Define how many FFT bands we want
-int bands = 128;
+int bands = 64;
 
 // declare a drawing variable for calculating rect width
 float r_width;
