@@ -61,12 +61,14 @@ void setup()
   artnet.start();
   readXml(XmlFilePath);
 
+  input = new AudioIn(this, 0);
+  input.start();
+  
   device = new AudioDevice(this, 44000, bands);
   r_width = width/float(bands);
-  sample = new SoundFile(this, "beat.aiff");
-  sample.loop();
+
   fft = new FFT(this, bands);
-  fft.input(sample);
+  fft.input(input);
 }
 
 

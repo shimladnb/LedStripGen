@@ -1,5 +1,6 @@
 import processing.sound.*;
 
+AudioIn input;
 // Declare the processing sound variables 
 SoundFile sample;
 FFT fft;
