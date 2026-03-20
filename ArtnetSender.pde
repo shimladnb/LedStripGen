@@ -56,8 +56,6 @@ ArrayList<HLine> hLines = new ArrayList<HLine>();
 PImage myImage;
 PImage linesImage;
 XML xml;
-ArrayList<int[]> inputRectX = new ArrayList<int[]>();
-ArrayList<int[]> inputRectY = new ArrayList<int[]>();
 
 
 class XmlFixture
@@ -233,9 +231,7 @@ void readXml(String filePath)
             {              
               XML[] v = rect.getChildren("v");
               int centerX = (int)(v[0].getFloat("x") + (v[2].getFloat("x") - v[0].getFloat("x")) / 2);
-              int centerY = (int)(v[0].getFloat("y") + (v[2].getFloat("y") - v[0].getFloat("y")) / 2);
-              inputRectX.add(new int[]{centerX});
-              inputRectY.add(new int[]{centerY});
+              int centerY = (int)(v[0].getFloat("y") + (v[2].getFloat("y") - v[0].getFloat("y")) / 2);              
               XmlFixture fixture = new XmlFixture(centerX, centerY, channelOffset);
               fixtures.add(fixture);
             }
