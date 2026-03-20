@@ -59,6 +59,20 @@ XML xml;
 ArrayList<int[]> inputRectX = new ArrayList<int[]>();
 ArrayList<int[]> inputRectY = new ArrayList<int[]>();
 
+
+class XmlFixture
+{
+  int x, y, channelOffset;
+  XmlFixture(int x, int y, int channelOffset)
+  {
+    this.x = x;
+    this.y = y;
+    this.channelOffset = channelOffset;
+  }
+}
+
+ArrayList<XmlFixture> fixtures = new ArrayList<XmlFixture>();
+
 void setup()
 {
   size(560, 70, P2D);
@@ -210,16 +224,20 @@ void readXml(String filePath)
           println("Number of DmxSlices: " + DmxSlices.length);
           for (XML DmxSlice : DmxSlices)
           {
+            
             XML[] InputRect = DmxSlice.getChildren("InputRect");
-            // println("Number of InputRect: " + InputRect.length);
+            XML[] Params = DmxSlice.getChildren("Params");
+            XML[] ParamRange = Params[1].getChildren("ParamRange");
+            int channelOffset = (int)ParamRange[0].getFloat("value");
             for (XML rect : InputRect)
-            {
+            {              
               XML[] v = rect.getChildren("v");
               int centerX = (int)(v[0].getFloat("x") + (v[2].getFloat("x") - v[0].getFloat("x")) / 2);
               int centerY = (int)(v[0].getFloat("y") + (v[2].getFloat("y") - v[0].getFloat("y")) / 2);
-              // println("center:" + centerX + ", " + centerY);
               inputRectX.add(new int[]{centerX});
               inputRectY.add(new int[]{centerY});
+              XmlFixture fixture = new XmlFixture(centerX, centerY, channelOffset);
+              fixtures.add(fixture);
             }
           }
         }
