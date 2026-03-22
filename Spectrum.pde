@@ -22,7 +22,8 @@ float[] sum = new float[bands];
 // Create a smoothing factor
 float smooth_factor = 0.08;
 
-void drawAnalyzer() {
+void drawAnalyzer() 
+{
   fft.analyze();
   for (int i = 0; i < bands; i++) 
   {        

@@ -25,7 +25,9 @@ String IP = "127.0.0.1";
 String XmlFilePath = "ArtnetSenderADM-WORKING.xml";
 String imagePath = "InputTester-01.png";
 int inputUniverse = 8;
-int linesAmount = 0;
+int linesAmount = 4;
+boolean drawAnalyzer = true;
+boolean drawLines = false;
 boolean displayImage = false;
 boolean blurImage = false;
 int fps = 30;
@@ -59,16 +61,6 @@ void draw()
 {
   background(0);
 
-  float rotate = getNormalizedDmxValue(8,1) * 40; 
-  translate(width / 2, height / 2);
-  scale(scale);
-  translate(-width / 2, -height / 2);
-
-  for (HLine line : hLines)
-  {
-    line.update(1.0, (int)rotate);
-  }
-
   if (displayImage)
   {
     image(myImage, 0, 0, width, height);
@@ -79,10 +71,16 @@ void draw()
     filter(BLUR, 2);
   }
 
-  drawAnalyzer();
+  if (drawAnalyzer)
+  {
+    drawAnalyzer();
+  }
   
-
-
-
+  if (drawLines)
+  {
+    drawLines();
+  }
+  
+  
   scraperFromXml();
 }

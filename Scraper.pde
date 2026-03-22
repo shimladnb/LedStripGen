@@ -101,7 +101,8 @@ void scraperFromXml()
     }
   }
 
-  for (int i = 0; i < dmxDataArray.length; i++) {
+  for (int i = 0; i < dmxDataArray.length; i++) 
+  {
     artnet.unicastDmx(IP, 0, i, dmxDataArray[i]);
   }
 }

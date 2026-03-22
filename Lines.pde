@@ -4,19 +4,18 @@ PImage linesImage;
 
 
 // Function to create a color LFO (Low Frequency Oscillator) for dynamic color changes
-int colorLfo(float frequency, float amplitude)
+int colorLfo(float frequency, float amplitude) 
 {
   return (int)(amplitude * (1 + sin(TWO_PI * frequency * frameCount / 60)) / 2);
 }
 
 // Class representing a horizontal line that moves down the screen
-class HLine
-{
+class HLine {
   float xpos, speed;
   float size;
   int ypos;
   int index;
-  HLine (float x, float s, int y, int i)
+  HLine (float x, float s, int y, int i) 
   {
     xpos = x;
     speed = s;
@@ -24,11 +23,11 @@ class HLine
     index = i;
   }
 
-  void update(float amplitude, int rotate) {
+  void update(float amplitude, int rotate) 
+  {
     colorMode(HSB, 360, 100, 100);
     xpos += speed;
-    if (xpos  > width)
-    {
+    if (xpos  > width) {
       xpos = 0   ;
     }
     int alpha = (int)(255 * amplitude);
@@ -50,5 +49,17 @@ void createLines( int amount) {
     float speed = 1;
     float ypos = 0;
     hLines.add(new HLine(xpos, speed, (int)ypos, i));
+  }
+}
+
+void drawLines() {
+
+  float rotate = getNormalizedDmxValue(8,1) * 40; 
+  translate(width / 2, height / 2);
+  scale(scale);
+  translate(-width / 2, -height / 2); 
+  for (HLine line : hLines)
+  {
+    line.update(1.0, (int)rotate);
   }
 }
