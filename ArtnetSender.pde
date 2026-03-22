@@ -1,21 +1,11 @@
 
-
-
 /*
   Written by Sem Schreuder, 2026
  
  A Processing sketch that sends DMX data over Art-Net based on pixel data from the viewport.
  Make sure to include the ArtNet library in your Processing environment to run this code.
- 
- todo:
- - 16 x 32 strips scraper CHECK
- - add more visual effects
- - Artnet receiver to visualize incoming data CHECK
- - image files for lines CHECK
- - plan out Artnet control from the desk CHECK
- - read resolume xml for scraping CHECK
- */
 
+*/
 
 
 // user params
@@ -26,12 +16,13 @@ String XmlFilePath = "ArtnetSenderADM-WORKING.xml";
 String imagePath = "InputTester-01.png";
 int inputUniverse = 8;
 int linesAmount = 4;
-boolean drawAnalyzer = true;
+boolean drawAnalyzer = false;
+boolean drawSegmentedLines = true;
 boolean drawLines = false;
 boolean displayImage = false;
 boolean blurImage = false;
 int fps = 30;
-float scale = 1;
+float scale = 1.5;
 PImage myImage;
 
 
@@ -61,6 +52,11 @@ void draw()
 {
   background(0);
 
+  pushMatrix();
+  translate(width/2, height/2);
+  scale(scale);
+  translate(-width/2, -height/2);
+
   if (displayImage)
   {
     image(myImage, 0, 0, width, height);
@@ -80,6 +76,15 @@ void draw()
   {
     drawLines();
   }
+
+  if (drawSegmentedLines)
+  {
+    drawSegmentedLines();
+  }
+
+
+  popMatrix();
+
   
   
   scraperFromXml();
