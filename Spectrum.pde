@@ -56,12 +56,13 @@ void drawSegmentedLines()
         float hue = (i / float(bands)) * 90 + getNormalizedDmxValue(inputUniverse, 0) * 360;
         float saturation = getNormalizedDmxValue(inputUniverse, 1) * 100;
         float brightness = getNormalizedDmxValue(inputUniverse, 2) * 100;
+        float audioBrightness = constrain(pow(sum[i] * 1000,2) * brightness, 0, 100);        
         colorMode(HSB, 360, 100, 100);
         
         if (receivedDmxData(inputUniverse)) {
-            stroke(hue % 360, saturation, brightness);
+            stroke(hue % 360, saturation, audioBrightness);
         } else {
-            stroke(0, 100, 100);
+            stroke(0, 100, audioBrightness);
         }
         
         strokeWeight(4);
