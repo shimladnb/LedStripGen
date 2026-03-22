@@ -21,6 +21,7 @@ boolean drawSegmentedLines = true;
 boolean drawLines = false;
 boolean displayImage = false;
 boolean blurImage = false;
+float curve = 1;
 int fps = 30;
 float scale = 1.5;
 PImage myImage;
@@ -68,7 +69,9 @@ void draw()
 
   if (drawSegmentedLines)
   {
-    drawSegmentedLines();
+    drawSegmentedLines(-40, 8 * curve);
+    drawSegmentedLines(0, 2 * curve);
+    drawSegmentedLines(40, 8 * curve);
   }
 
   popMatrix();

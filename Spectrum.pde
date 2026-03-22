@@ -46,7 +46,7 @@ void drawAnalyzer()
   }
 }
 
-void drawSegmentedLines()
+void drawSegmentedLines(float heightOffset, float curve)
 {
     fft.analyze();
     for (int i = 0; i < bands; i++) 
@@ -56,21 +56,21 @@ void drawSegmentedLines()
         float hue = (i / float(bands)) * 90 + getNormalizedDmxValue(inputUniverse, 0) * 360;
         float saturation = getNormalizedDmxValue(inputUniverse, 1) * 100;
         float brightness = getNormalizedDmxValue(inputUniverse, 2) * 100;
-        float audioBrightness = constrain(pow(sum[i] * 1000,2) * brightness, 0, 100);        
+        float audioBrightness = constrain(pow(sum[i] * 1000, curve) * brightness, 0, 100);        
         colorMode(HSB, 360, 100, 100);
         
         if (receivedDmxData(inputUniverse)) {
             stroke(hue % 360, saturation, audioBrightness);
         } else {
-            stroke(0, 100, audioBrightness);
+            stroke(0, 100, constrain(pow(sum[i] * 1000, curve) * 100, 0, 100)); 
         }
         
         strokeWeight(4);
         float segmentX1 = i * r_width;
         float segmentX2 = (i + 1) * r_width;
-        float lineY = height / 2 - (sum[i] * height * audioScale);
+        float lineY = height / 2 - (sum[i] * height * audioScale) + heightOffset;
         lineY = sin(lineY) * (height / 4) + (height / 2);
-        float nextLineY = (i + 1 < bands) ? height / 2 - (sum[i + 1] * height * audioScale) : lineY;
+        float nextLineY = (i + 1 < bands) ? height / 2 - (sum[i + 1] * height * audioScale) + heightOffset : lineY;
         nextLineY = sin(nextLineY) * (height / 4) + (height / 2);
         line(segmentX1, lineY, segmentX2, nextLineY);
     }
