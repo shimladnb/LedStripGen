@@ -69,9 +69,9 @@ void draw()
 
   if (drawSegmentedLines)
   {
-    drawSegmentedLines(-40, 8 * curve);
-    drawSegmentedLines(0, 2 * curve);
-    drawSegmentedLines(40, 8 * curve);
+    drawSegmentedLines(-40, 8 * curve, 1);
+    drawSegmentedLines(0, 2 * curve, 4);
+    drawSegmentedLines(40, 8 * curve, 1);
   }
 
   popMatrix();

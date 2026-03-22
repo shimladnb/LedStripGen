@@ -46,7 +46,7 @@ void drawAnalyzer()
   }
 }
 
-void drawSegmentedLines(float heightOffset, float curve)
+void drawSegmentedLines(float heightOffset, float curve, int lineWeight)
 {
     fft.analyze();
     for (int i = 0; i < bands; i++) 
@@ -65,7 +65,7 @@ void drawSegmentedLines(float heightOffset, float curve)
             stroke(0, 100, constrain(pow(sum[i] * 1000, curve) * 100, 0, 100)); 
         }
         
-        strokeWeight(4);
+        strokeWeight(lineWeight);
         float segmentX1 = i * r_width;
         float segmentX2 = (i + 1) * r_width;
         float lineY = height / 2 - (sum[i] * height * audioScale) + heightOffset;
