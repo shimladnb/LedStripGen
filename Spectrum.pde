@@ -64,7 +64,7 @@ void drawSegmentedLines()
             stroke(0, 100, 100);
         }
         
-        strokeWeight(2);
+        strokeWeight(4);
         float segmentX1 = i * r_width;
         float segmentX2 = (i + 1) * r_width;
         float lineY = height / 2 - (sum[i] * height * audioScale);
@@ -72,7 +72,5 @@ void drawSegmentedLines()
         float nextLineY = (i + 1 < bands) ? height / 2 - (sum[i + 1] * height * audioScale) : lineY;
         nextLineY = sin(nextLineY) * (height / 4) + (height / 2);
         line(segmentX1, lineY, segmentX2, nextLineY);
-
-        
     }
  }

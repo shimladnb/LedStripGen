@@ -51,7 +51,6 @@ void setup()
 void draw()
 {
   background(0);
-
   pushMatrix();
   translate(width/2, height/2);
   scale(scale);
@@ -82,10 +81,7 @@ void draw()
     drawSegmentedLines();
   }
 
-
   popMatrix();
 
-  
-  
   scraperFromXml();
 }
