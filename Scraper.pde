@@ -4,11 +4,8 @@ import ch.bildspur.artnet.*;
 // global variables and setup
 ArtNetClient artnet;
 byte[][] dmxDataArray = new byte[4][512];
-byte[] dmxDataInput = new byte[512];
 
-ArrayList<HLine> hLines = new ArrayList<HLine>();
-PImage myImage;
-PImage linesImage;
+
 XML xml;
 
 
@@ -108,3 +105,16 @@ void scraperFromXml()
     artnet.unicastDmx(IP, 0, i, dmxDataArray[i]);
   }
 }
+
+
+float getNormalizedDmxValue(int universe, int channel)
+{
+  byte[] artnetInput = artnet.readDmxData(0, universe);
+  if (channel >= 0 && channel < artnetInput.length)
+  {
+    return (artnetInput[channel] & 0xFF) / 255.0;
+  }
+  return 0.0;
+}
+
+

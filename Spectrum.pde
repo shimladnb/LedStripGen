@@ -11,7 +11,7 @@ AudioDevice device;
 int audioScale=5;
 
 // Define how many FFT bands we want
-int bands = 64;
+int bands = 16;
 
 // declare a drawing variable for calculating rect width
 float r_width;
@@ -20,4 +20,4 @@ float r_width;
 float[] sum = new float[bands];
 
 // Create a smoothing factor
-float smooth_factor = 0.2;
+float smooth_factor = 0.08;

@@ -1,4 +1,7 @@
 
+ArrayList<HLine> hLines = new ArrayList<HLine>();
+PImage linesImage;
+
 
 // Function to create a color LFO (Low Frequency Oscillator) for dynamic color changes
 int colorLfo(float frequency, float amplitude)

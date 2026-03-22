@@ -1,4 +1,6 @@
 
+
+
 /*
   Written by Sem Schreuder, 2026
  
@@ -19,13 +21,15 @@
 // user params
 String IP = "127.0.0.1";
 String XmlFilePath = "ArtnetSenderADM-WORKING.xml";
+String imagePath = "InputTester-01.png";
 // String IP = "10.254.254.254";
 // String IP = "192.168.1.245";
-int linesAmount = 3;
+int linesAmount = 5;
 boolean displayImage = false;
 boolean blurImage = false;
 int fps = 30;
 float scale = 1;
+PImage myImage;
 
 
 
@@ -33,7 +37,7 @@ void setup()
 {
   size(560, 70, P2D);
   frameRate(fps);
-  myImage = loadImage("InputTester-01.png");
+  myImage = loadImage(imagePath);
   linesImage = loadImage("GradientLineVertical.png");
   createLines(linesAmount);
   textAlign(CENTER, CENTER);
@@ -53,12 +57,10 @@ void setup()
 void draw()
 {
   background(0);
-  // read artnet data
-  byte[] dataInput = artnet.readDmxData(0, 8);
-  // int c = color(dataInput[0] & 0xFF, dataInput[1] & 0xFF, dataInput[2] & 0xFF);
 
-  float rotate = ((dataInput[0] & 0xFF) / 255.0) * 40; // Map the first byte to a rotation angle between 0 and 360 degrees
-  // scale viewport from the center
+
+
+  float rotate = getNormalizedDmxValue(8,1) * 40; 
   translate(width / 2, height / 2);
   scale(scale);
   translate(-width / 2, -height / 2);
@@ -84,8 +86,13 @@ void draw()
     sum[i] += (fft.spectrum[i] - sum[i]) * smooth_factor;
     
     // draw the rects with a scale factor
+    float hue = (i / float(bands)) * 90  + getNormalizedDmxValue(8, 0) * 360;
+    float saturation = getNormalizedDmxValue(8, 1) * 100;
+    float brightness = getNormalizedDmxValue(8, 2) * 100;
+    hue = hue % 360;
     colorMode(HSB, 360, 100, 100);
-    fill(i * 360 / bands, 100, 100);
+    fill(hue, saturation, brightness);
+    strokeWeight(0);
     rect(i * r_width, height, r_width, -sum[i] * height * audioScale);
   }
 
