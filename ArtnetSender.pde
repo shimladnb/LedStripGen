@@ -20,11 +20,12 @@
 
 // user params
 String IP = "127.0.0.1";
-String XmlFilePath = "ArtnetSenderADM-WORKING.xml";
-String imagePath = "InputTester-01.png";
 // String IP = "10.254.254.254";
 // String IP = "192.168.1.245";
-int linesAmount = 5;
+String XmlFilePath = "ArtnetSenderADM-WORKING.xml";
+String imagePath = "InputTester-01.png";
+int inputUniverse = 8;
+int linesAmount = 0;
 boolean displayImage = false;
 boolean blurImage = false;
 int fps = 30;
@@ -58,8 +59,6 @@ void draw()
 {
   background(0);
 
-
-
   float rotate = getNormalizedDmxValue(8,1) * 40; 
   translate(width / 2, height / 2);
   scale(scale);
@@ -80,21 +79,10 @@ void draw()
     filter(BLUR, 2);
   }
 
-  fft.analyze();
-  for (int i = 0; i < bands; i++) 
-  {        
-    sum[i] += (fft.spectrum[i] - sum[i]) * smooth_factor;
-    
-    // draw the rects with a scale factor
-    float hue = (i / float(bands)) * 90  + getNormalizedDmxValue(8, 0) * 360;
-    float saturation = getNormalizedDmxValue(8, 1) * 100;
-    float brightness = getNormalizedDmxValue(8, 2) * 100;
-    hue = hue % 360;
-    colorMode(HSB, 360, 100, 100);
-    fill(hue, saturation, brightness);
-    strokeWeight(0);
-    rect(i * r_width, height, r_width, -sum[i] * height * audioScale);
-  }
+  drawAnalyzer();
+  
+
+
 
   scraperFromXml();
 }

@@ -117,4 +117,34 @@ float getNormalizedDmxValue(int universe, int channel)
   return 0.0;
 }
 
+int getDmxValue(int universe, int channel)
+{
+  byte[] artnetInput = artnet.readDmxData(0, universe);
+  if (channel >= 0 && channel < artnetInput.length)
+  {
+    return artnetInput[channel] & 0xFF;
+  }
+  return 0;
+}
+
+boolean receivedDmxData(int universe)
+{
+  boolean dataReceived = false;
+  byte[] artnetInput = artnet.readDmxData(0, universe);
+  for (byte b : artnetInput)
+  {
+    if (b != 0)
+    {
+      dataReceived = true;
+      break;
+    }
+    else
+    {
+      dataReceived = false;
+      break;
+    }    
+  }
+  return dataReceived;
+}
+  
 
