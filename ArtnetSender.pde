@@ -56,21 +56,11 @@ void draw()
   scale(scale);
   translate(-width/2, -height/2);
 
-  if (displayImage)
-  {
-    image(myImage, 0, 0, width, height);
-  }
-
-  if (blurImage)
-  {
-    filter(BLUR, 2);
-  }
-
   if (drawAnalyzer)
   {
     drawAnalyzer();
   }
-  
+
   if (drawLines)
   {
     drawLines();
@@ -83,5 +73,34 @@ void draw()
 
   popMatrix();
 
+  if (displayImage)
+  {
+    image(myImage, 0, 0, width, height);
+  }
+
+  if (blurImage)
+  {
+    filter(BLUR, 4);
+  }
+
+  keyPressed(key);
+
   scraperFromXml();
+}
+
+void keyPressed(char key) {
+  switch(key) {
+    case '1':
+      drawAnalyzer = !drawAnalyzer;
+      break;
+    case '2':
+      drawLines = !drawLines;
+      break;
+    case '3':
+      drawSegmentedLines = !drawSegmentedLines;
+      break;
+    case '4':
+      displayImage = !displayImage;
+      break;
+  }
 }
