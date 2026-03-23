@@ -42,7 +42,8 @@ class HLine {
 }
 
 // Function to create horizontal lines with random positions and speeds
-void createLines( int amount) {
+void createLines( int amount) 
+{
   for (int i = 0; i < amount; i++)
   {
     float xpos = i * width / amount;
@@ -52,7 +53,8 @@ void createLines( int amount) {
   }
 }
 
-void drawLines() {
+void drawLines() 
+{
 
   float rotate = getNormalizedDmxValue(8,1) * 40; 
   translate(width / 2, height / 2);

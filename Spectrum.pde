@@ -55,7 +55,7 @@ void drawSegmentedLines(float heightOffset, float curve, int lineWeight)
         
         float hue = (i / float(bands)) * 90 + getNormalizedDmxValue(inputUniverse, 0) * 360;
         float saturation = getNormalizedDmxValue(inputUniverse, 1) * 100;
-        float brightness = getNormalizedDmxValue(inputUniverse, 2) * 100;
+        float brightness = pow(getNormalizedDmxValue(inputUniverse, 2), 4) * 100;
         float audioBrightness = constrain(pow(sum[i] * 1000, curve) * brightness, 0, 100);        
         colorMode(HSB, 360, 100, 100);
         
@@ -75,3 +75,46 @@ void drawSegmentedLines(float heightOffset, float curve, int lineWeight)
         line(segmentX1, lineY, segmentX2, nextLineY);
     }
  }
+
+float[] rayLifetime = new float[bands];
+float[] rayDirection = new float[bands];
+float rayThreshold = 0.05;
+float raySpeed = 1;
+float rayFadeSpeed = 4;
+
+void drawPulseRays() 
+{
+  fft.analyze();
+  
+  float centerX = width / 2;
+  float centerY = height / 2;
+  
+  for (int i = 0; i < bands; i++) {
+    sum[i] += (fft.spectrum[i] - sum[i]) * smooth_factor;
+    
+    // Spawn new rays if threshold reached
+    if (sum[i] > rayThreshold && rayLifetime[i] <= 0) {
+      rayLifetime[i] = 255;
+      rayDirection[i] = random(1) > 0.5 ? 1 : -1; // Random left or right
+    }
+    
+    // Update and draw existing rays
+    if (rayLifetime[i] > 0) {
+      float hue = (i / float(bands)) * 90 + getNormalizedDmxValue(inputUniverse, 0) * 360;
+      float saturation = getNormalizedDmxValue(inputUniverse, 1) * 100;
+      
+      colorMode(HSB, 360, 100, 100);
+      float alpha = pow(rayLifetime[i] / 255.0, 2) * 255;
+      stroke(hue % 360, saturation, alpha);
+      strokeWeight(2);
+      
+      float distance = (255 - rayLifetime[i]) / 255.0 * raySpeed * 100;
+      float rayX = centerX + rayDirection[i] * distance;
+      line(rayX, 0, rayX, height);
+      
+      rayLifetime[i] -= rayFadeSpeed;
+    }
+  }
+}
+
+

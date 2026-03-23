@@ -19,8 +19,10 @@ int linesAmount = 4;
 boolean drawAnalyzer = false;
 boolean drawSegmentedLines = true;
 boolean drawLines = false;
+boolean drawPulseRays = true;
 boolean displayImage = false;
 boolean blurImage = false;
+
 float curve = 1;
 int fps = 30;
 float scale = 1.5;
@@ -72,6 +74,11 @@ void draw()
     drawSegmentedLines(-40, 8 * curve, 1);
     drawSegmentedLines(0, 2 * curve, 4);
     drawSegmentedLines(40, 8 * curve, 1);
+  }
+
+  if (drawPulseRays)
+  {
+    drawPulseRays();
   }
 
   popMatrix();
