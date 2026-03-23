@@ -46,16 +46,16 @@ void drawAnalyzer()
   }
 }
 
-void drawSegmentedLines(float heightOffset, float curve, int lineWeight)
+void drawSegmentedLines(float heightOffset, float curve, int lineWeight, float amp)
 {
     fft.analyze();
     for (int i = 0; i < bands; i++) 
     {
         sum[i] += (fft.spectrum[i] - sum[i]) * smooth_factor;
         
-        float hue = (i / float(bands)) * 90 + getNormalizedDmxValue(inputUniverse, 0) * 360;
-        float saturation = getNormalizedDmxValue(inputUniverse, 1) * 100;
-        float brightness = pow(getNormalizedDmxValue(inputUniverse, 2), 4) * 100;
+        float hue = (i / float(bands)) * 90 + getNormalizedDmxValue(inputUniverse, 1) * 360;
+        float saturation = getNormalizedDmxValue(inputUniverse, 2) * 100;
+        float brightness = amp * 100;
         float audioBrightness = constrain(pow(sum[i] * 1000, curve) * brightness, 0, 100);        
         colorMode(HSB, 360, 100, 100);
         
@@ -82,7 +82,7 @@ float rayThreshold = 0.05;
 float raySpeed = 1;
 float rayFadeSpeed = 4;
 
-void drawPulseRays() 
+void drawPulseRays(float amp) 
 {
   fft.analyze();
   
@@ -102,12 +102,18 @@ void drawPulseRays()
     // Update and draw existing rays
     if (rayLifetime[i] > 0) 
     {
-      float hue = (i / float(bands)) * 90 + getNormalizedDmxValue(inputUniverse, 0) * 360;
-      float saturation = getNormalizedDmxValue(inputUniverse, 1) * 100;
-      
+      float hue = (i / float(bands)) * 90 + getNormalizedDmxValue(inputUniverse, 1) * 360;
+      float saturation = getNormalizedDmxValue(inputUniverse, 2) * 100;
+      float brightness = 1;
       colorMode(HSB, 360, 100, 100);
-      float alpha = pow(rayLifetime[i] / 255.0, 2) * 255;
-      stroke(hue % 360, saturation, alpha);
+      float alpha = pow(rayLifetime[i] / 255.0, 2) * brightness * 100;
+
+              if (receivedDmxData(inputUniverse)) {
+            stroke(hue % 360, saturation, alpha);
+        } else {
+            stroke(0, 0, constrain(pow(sum[i] * 1000, curve) * 100, 0, alpha)); 
+        }
+
       strokeWeight(2);
       
       float distance = (255 - rayLifetime[i]) / 255.0 * raySpeed * 100;

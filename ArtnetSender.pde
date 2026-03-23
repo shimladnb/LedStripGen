@@ -74,19 +74,20 @@ void draw()
 
   if (SegmentedLines)
   {
-    drawSegmentedLines(-40, 8 * curve, 1);
-    drawSegmentedLines(0, 2 * curve, 4);
-    drawSegmentedLines(40, 8 * curve, 1);
+    drawSegmentedLines(-40, 8 * curve, 1, pow(getNormalizedDmxValue(8,4), 4));
+    drawSegmentedLines(0, 2 * curve, 4, pow(getNormalizedDmxValue(8,4), 4));
+    drawSegmentedLines(40, 8 * curve, 1, pow(getNormalizedDmxValue(8,4), 4));
   }
 
   if (PulseRays)
   {
-    drawPulseRays();
+    drawPulseRays(getNormalizedDmxValue(8,5));
   }
 
   if (Strobe)
   {
-    drawScreenStrobe(10);
+  float strobeSpeed = getNormalizedDmxValue(8,6) * 15; 
+    drawScreenStrobe(strobeSpeed);
   }
 
   popMatrix();
@@ -100,13 +101,8 @@ void draw()
   {
     filter(BLUR, 4);
   }
-  
-  if (getDmxValue(8,4) > 0)
-  {
-    Strobe = true;
-   } else {
-    Strobe = false;
-   };
+
+
 
   keyPressed(key);
 
