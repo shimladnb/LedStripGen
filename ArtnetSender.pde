@@ -24,7 +24,7 @@ boolean PulseRays = true;
 boolean Strobe = false;
 
 boolean Image = false;
-boolean blur = false;
+boolean Blur = false;
 
 float curve = 1;
 int fps = 30;
@@ -96,29 +96,42 @@ void draw()
     image(myImage, 0, 0, width, height);
   }
 
-  if (blur)
+  if (Blur)
   {
     filter(BLUR, 4);
   }
+  
+  if (getDmxValue(8,4) > 0)
+  {
+    Strobe = true;
+   } else {
+    Strobe = false;
+   };
 
   keyPressed(key);
+
+
 
   scraperFromXml();
 }
 
-void keyPressed(char key) {
-  switch(key) {
-    case '1':
-      Analyzer = !Analyzer;
-      break;
-    case '2':
-      Lines = !Lines;
-      break;
-    case '3':
-      SegmentedLines = !SegmentedLines;
-      break;
-    case '4':
-      Image = !Image;
-      break;
+// Toggle helper so holding the key doesn't flip every frame
+boolean keyHandled = false;
+
+void keyPressed(char k)
+{
+  if (keyPressed && !keyHandled)
+  {
+    if (k == 's' || k == 'S')
+    {
+      Strobe = !Strobe;
+    }
+    keyHandled = true;
+  }
+  else if (!keyPressed)
+  {
+    keyHandled = false;
   }
 }
+
+

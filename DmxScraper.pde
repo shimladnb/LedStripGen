@@ -120,6 +120,7 @@ float getNormalizedDmxValue(int universe, int channel)
 
 int getDmxValue(int universe, int channel)
 {
+  channel -= 1; // Adjust for 1-based indexing in XML
   byte[] artnetInput = artnet.readDmxData(0, universe);
   if (channel >= 0 && channel < artnetInput.length)
   {

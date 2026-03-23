@@ -10,7 +10,8 @@ int colorLfo(float frequency, float amplitude)
 }
 
 // Class representing a horizontal line that moves down the screen
-class HLine {
+class HLine 
+{
   float xpos, speed;
   float size;
   int ypos;
@@ -55,7 +56,6 @@ void createLines( int amount)
 
 void drawLines() 
 {
-
   float rotate = getNormalizedDmxValue(8,1) * 40; 
   translate(width / 2, height / 2);
   scale(scale);
