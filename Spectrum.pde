@@ -89,17 +89,20 @@ void drawPulseRays()
   float centerX = width / 2;
   float centerY = height / 2;
   
-  for (int i = 0; i < bands; i++) {
+  for (int i = 0; i < bands; i++) 
+  {
     sum[i] += (fft.spectrum[i] - sum[i]) * smooth_factor;
     
     // Spawn new rays if threshold reached
-    if (sum[i] > rayThreshold && rayLifetime[i] <= 0) {
+    if (sum[i] > rayThreshold && rayLifetime[i] <= 0) 
+    {
       rayLifetime[i] = 255;
       rayDirection[i] = random(1) > 0.5 ? 1 : -1; // Random left or right
     }
     
     // Update and draw existing rays
-    if (rayLifetime[i] > 0) {
+    if (rayLifetime[i] > 0) 
+    {
       float hue = (i / float(bands)) * 90 + getNormalizedDmxValue(inputUniverse, 0) * 360;
       float saturation = getNormalizedDmxValue(inputUniverse, 1) * 100;
       
@@ -114,6 +117,17 @@ void drawPulseRays()
       
       rayLifetime[i] -= rayFadeSpeed;
     }
+  }
+}
+
+void drawScreenStrobe(float strobeSpeed) 
+{
+  float strobeFrequency = strobeSpeed / frameRate;
+  if (sin(frameCount * strobeFrequency * TWO_PI) > 0) {
+    colorMode(RGB);
+    fill(255);
+    stroke(255);
+    rect(0, 0, width, height);
   }
 }
 

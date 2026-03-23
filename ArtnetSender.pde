@@ -16,12 +16,15 @@ String XmlFilePath = "ArtnetSenderADM-WORKING.xml";
 String imagePath = "InputTester-01.png";
 int inputUniverse = 8;
 int linesAmount = 4;
-boolean drawAnalyzer = false;
-boolean drawSegmentedLines = true;
-boolean drawLines = false;
-boolean drawPulseRays = true;
-boolean displayImage = false;
-boolean blurImage = false;
+
+boolean Lines = false;
+boolean Analyzer = false;
+boolean SegmentedLines = true;
+boolean PulseRays = true;
+boolean Strobe = false;
+
+boolean Image = false;
+boolean blur = false;
 
 float curve = 1;
 int fps = 30;
@@ -59,36 +62,41 @@ void draw()
   scale(scale);
   translate(-width/2, -height/2);
 
-  if (drawAnalyzer)
+  if (Analyzer)
   {
     drawAnalyzer();
   }
 
-  if (drawLines)
+  if (Lines)
   {
     drawLines();
   }
 
-  if (drawSegmentedLines)
+  if (SegmentedLines)
   {
     drawSegmentedLines(-40, 8 * curve, 1);
     drawSegmentedLines(0, 2 * curve, 4);
     drawSegmentedLines(40, 8 * curve, 1);
   }
 
-  if (drawPulseRays)
+  if (PulseRays)
   {
     drawPulseRays();
   }
 
+  if (Strobe)
+  {
+    drawScreenStrobe(10);
+  }
+
   popMatrix();
 
-  if (displayImage)
+  if (Image)
   {
     image(myImage, 0, 0, width, height);
   }
 
-  if (blurImage)
+  if (blur)
   {
     filter(BLUR, 4);
   }
@@ -101,16 +109,16 @@ void draw()
 void keyPressed(char key) {
   switch(key) {
     case '1':
-      drawAnalyzer = !drawAnalyzer;
+      Analyzer = !Analyzer;
       break;
     case '2':
-      drawLines = !drawLines;
+      Lines = !Lines;
       break;
     case '3':
-      drawSegmentedLines = !drawSegmentedLines;
+      SegmentedLines = !SegmentedLines;
       break;
     case '4':
-      displayImage = !displayImage;
+      Image = !Image;
       break;
   }
 }
